@@ -1,0 +1,96 @@
+{
+  "scenario_name": "Demo Flood Response Network (illustrative, simulated)",
+  "description": "Synthetic 8-node, 9-road network for testing VOI vs heuristic inspection policies under simulated flood uncertainty.",
+  "nodes": {
+    "BASE": {"x": 0.0, "y": 2.0},
+    "N_MAIN": {"x": 2.0, "y": 3.0},
+    "N_BRANCH": {"x": 4.0, "y": 3.0},
+    "N_DETOUR1": {"x": 1.5, "y": 0.5},
+    "N_DETOUR2": {"x": 4.5, "y": 0.5},
+    "HOSPITAL": {"x": 6.0, "y": 2.0},
+    "N_DECOY": {"x": 2.0, "y": 4.5},
+    "N_SPUR": {"x": 6.0, "y": 3.2}
+  },
+  "edges": [
+    {
+      "road_id": "ROAD_BASE_MAIN",
+      "road_name": "Base Highway",
+      "u": "BASE",
+      "v": "N_MAIN",
+      "travel_time": 5.0,
+      "observation_cost": 2.0,
+      "staleness": 0.2,
+      "p_passable": 0.99
+    },
+    {
+      "road_id": "ROAD_A",
+      "road_name": "Road A (North Corridor)",
+      "u": "N_MAIN",
+      "v": "N_BRANCH",
+      "travel_time": 6.0,
+      "observation_cost": 2.0,
+      "staleness": 0.5,
+      "p_passable": 0.85
+    },
+    {
+      "road_id": "ROAD_B",
+      "road_name": "Road B (Hospital Causeway)",
+      "u": "N_BRANCH",
+      "v": "HOSPITAL",
+      "travel_time": 8.0,
+      "observation_cost": 3.0,
+      "staleness": 0.8,
+      "p_passable": 0.65
+    },
+    {
+      "road_id": "ROAD_DETOUR_1",
+      "road_name": "South Bypass West",
+      "u": "BASE",
+      "v": "N_DETOUR1",
+      "travel_time": 15.0,
+      "observation_cost": 2.0,
+      "staleness": 0.1,
+      "p_passable": 0.98
+    },
+    {
+      "road_id": "ROAD_DETOUR_2",
+      "road_name": "South Bypass Center",
+      "u": "N_DETOUR1",
+      "v": "N_DETOUR2",
+      "travel_time": 15.0,
+      "observation_cost": 2.0,
+      "staleness": 0.1,
+      "p_passable": 0.98
+    },
+    {
+      "road_id": "ROAD_DETOUR_3",
+      "road_name": "South Bypass East",
+      "u": "N_DETOUR2",
+      "v": "HOSPITAL",
+      "travel_time": 15.0,
+      "observation_cost": 2.0,
+      "staleness": 0.1,
+      "p_passable": 0.98
+    },
+    {
+      "road_id": "ROAD_DECOY",
+      "road_name": "Decoy Ridge Road",
+      "u": "N_MAIN",
+      "v": "N_DECOY",
+      "travel_time": 4.0,
+      "observation_cost": 1.0,
+      "staleness": 0.9,
+      "p_passable": 0.50
+    },
+    {
+      "road_id": "ROAD_HOSP_SPUR",
+      "road_name": "Hospital Helipad Spur",
+      "u": "HOSPITAL",
+      "v": "N_SPUR",
+      "travel_time": 2.0,
+      "observation_cost": 1.0,
+      "staleness": 0.3,
+      "p_passable": 0.95
+    }
+  ]
+}
