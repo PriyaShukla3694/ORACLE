@@ -76,7 +76,7 @@ def run_episode(
         A=A,
     )
 
-    _, initial_v0 = best_route(belief.cost, belief.weights)
+    initial_r_idx, initial_v0 = best_route(belief.cost, belief.weights)
 
     remaining_budget = float(budget)
     observation_log: List[Dict[str, Any]] = []
@@ -173,15 +173,19 @@ def run_episode(
         "num_observations": len(observation_log),
         "observation_log": observation_log,
         "initial_expected_cost": round(initial_v0, 2),
+        "initial_route_idx": initial_r_idx,
         "final_expected_cost": round(final_exp_cost, 2),
         "final_route_idx": final_r_idx,
         "final_route_roads": final_route_rids,
         "final_route_travel_time": round(final_route_time, 2),
         "is_final_route_blocked": is_route_blocked,
+        "catastrophic_failure": 1.0 if is_route_blocked else 0.0,
+        "route_changed": bool(final_r_idx != initial_r_idx),
         "realized_cost": round(realized_cost, 2),
         "omniscient_route_idx": omniscient_best_idx,
         "omniscient_route_roads": [e.road_id for e in omniscient_edges],
         "omniscient_cost": round(omniscient_cost, 2),
+        "prior_best_is_omniscient": bool(initial_r_idx == omniscient_best_idx),
         "regret": round(regret, 2),
     }
 

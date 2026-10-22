@@ -1,133 +1,133 @@
-Target,Baseline,Mean_Diff,CI_Lower,CI_Upper,Wins,Ties,Losses,Wilcoxon_W,Wilcoxon_p,Subgroup_Type,Subgroup_Value
-ORACLE-VOI,Weighted-Heuristic,-2.22,-3.85,-0.61,1087,2864,849,1747.5,0.007510915069078056,Overall,All (Count Budgets)
-ORACLE-VOI,Corridor-first (hospital->base),-5.67,-7.96,-3.52,1425,2203,1172,1123.0,1.431762955460767e-06,Overall,All (Count Budgets)
-ORACLE-VOI,Corridor-clearance (base->hospital),-6.78,-9.39,-4.53,1448,2230,1122,1109.0,1.1235299519290757e-06,Overall,All (Count Budgets)
-ORACLE-VOI,Highest-Uncertainty,-7.74,-10.17,-5.43,1565,2219,1016,862.0,1.0782686894393923e-08,Overall,All (Count Budgets)
-ORACLE-VOI,Random,-7.52,-9.88,-5.31,1599,2261,940,745.0,9.344729313660313e-10,Overall,All (Count Budgets)
-ORACLE-VOI,Weighted-Heuristic,-5.24,-8.66,-1.84,395,965,240,1695.0,0.004680293904735215,Setting,reliable
-ORACLE-VOI,Corridor-first (hospital->base),-6.39,-10.59,-2.55,356,725,519,1881.0,0.029370812675787422,Setting,reliable
-ORACLE-VOI,Corridor-clearance (base->hospital),-7.75,-12.27,-3.65,368,748,484,1874.0,0.026333494041172783,Setting,reliable
-ORACLE-VOI,Highest-Uncertainty,-12.41,-17.06,-7.41,560,706,334,1243.5,1.0602623958934106e-05,Setting,reliable
-ORACLE-VOI,Random,-11.63,-15.96,-7.7,547,750,303,1021.5,2.478321908448938e-07,Setting,reliable
-ORACLE-VOI,Weighted-Heuristic,-1.35,-3.38,0.69,323,1016,261,1948.5,0.0547458480696989,Setting,mixed
-ORACLE-VOI,Corridor-first (hospital->base),-8.03,-11.4,-4.67,482,749,369,1251.5,1.222227653430646e-05,Setting,mixed
-ORACLE-VOI,Corridor-clearance (base->hospital),-9.05,-12.65,-5.54,486,771,343,1107.0,1.1135546336332023e-06,Setting,mixed
-ORACLE-VOI,Highest-Uncertainty,-9.14,-13.19,-5.28,484,761,355,1402.0,0.00012093625874744886,Setting,mixed
-ORACLE-VOI,Random,-8.37,-12.15,-4.64,488,753,359,1325.5,4.003732595680782e-05,Setting,mixed
-ORACLE-VOI,Weighted-Heuristic,-0.06,-1.67,1.21,369,883,348,2253.5,0.35144497909586203,Setting,harsh
-ORACLE-VOI,Corridor-first (hospital->base),-2.59,-4.52,-0.8,587,729,284,1216.5,6.88092735167959e-06,Setting,harsh
-ORACLE-VOI,Corridor-clearance (base->hospital),-3.53,-5.94,-1.3,594,711,295,1244.0,1.0602464800839438e-05,Setting,harsh
-ORACLE-VOI,Highest-Uncertainty,-1.69,-3.64,0.18,521,752,327,1788.0,0.011330609214543751,Setting,harsh
-ORACLE-VOI,Random,-2.56,-3.97,-1.28,564,758,278,1284.5,1.9966594175017783e-05,Setting,harsh
-ORACLE-VOI,Weighted-Heuristic,-3.17,-4.56,-1.86,616,1399,385,1205.0,5.709356211512554e-06,Source,perfect
-ORACLE-VOI,Corridor-first (hospital->base),-6.9,-9.02,-4.97,775,1008,617,835.5,6.282678116811476e-09,Source,perfect
-ORACLE-VOI,Corridor-clearance (base->hospital),-8.38,-10.79,-6.19,782,1031,587,803.0,3.2037976455886534e-09,Source,perfect
-ORACLE-VOI,Highest-Uncertainty,-10.09,-12.38,-7.86,929,1002,469,338.0,5.493250610251471e-14,Source,perfect
-ORACLE-VOI,Random,-10.92,-13.57,-8.49,940,1018,442,397.0,2.540385380669566e-13,Source,perfect
-ORACLE-VOI,Weighted-Heuristic,-1.27,-3.24,0.74,471,1465,464,2173.0,0.23013926391751105,Source,satellite
-ORACLE-VOI,Corridor-first (hospital->base),-4.45,-7.34,-1.55,650,1195,555,1511.0,0.0004926018769709891,Source,satellite
-ORACLE-VOI,Corridor-clearance (base->hospital),-5.17,-8.13,-2.22,666,1199,535,1604.0,0.0015509092809278886,Source,satellite
-ORACLE-VOI,Highest-Uncertainty,-5.4,-8.34,-2.35,636,1217,547,1692.5,0.004272949311786946,Source,satellite
-ORACLE-VOI,Random,-4.13,-6.99,-1.35,659,1243,498,1609.0,0.001645092440681076,Source,satellite
-ORACLE-VOI,Weighted-Heuristic,-3.06,-5.57,-0.9,558,1414,428,2012.0,0.0780449562258776,Length_Scale,0.0
-ORACLE-VOI,Corridor-first (hospital->base),-7.21,-10.64,-4.04,764,1013,623,1516.0,0.0005252048108600367,Length_Scale,0.0
-ORACLE-VOI,Corridor-clearance (base->hospital),-8.74,-12.65,-5.3,757,1057,586,1308.0,2.8803147220499617e-05,Length_Scale,0.0
-ORACLE-VOI,Highest-Uncertainty,-8.0,-11.57,-4.63,811,1044,545,1213.0,6.449772034316297e-06,Length_Scale,0.0
-ORACLE-VOI,Random,-10.19,-13.94,-7.1,858,1055,487,889.0,1.8724754018346057e-08,Length_Scale,0.0
-ORACLE-VOI,Weighted-Heuristic,-1.37,-3.51,0.68,529,1450,421,2080.0,0.12728196253714108,Length_Scale,2.0
-ORACLE-VOI,Corridor-first (hospital->base),-4.14,-7.31,-1.45,661,1190,549,1611.0,0.0016743796804899428,Length_Scale,2.0
-ORACLE-VOI,Corridor-clearance (base->hospital),-4.82,-7.84,-2.08,691,1173,536,1601.0,0.001496816480343499,Length_Scale,2.0
-ORACLE-VOI,Highest-Uncertainty,-7.49,-10.53,-4.53,754,1175,471,958.5,7.198536694611386e-08,Length_Scale,2.0
-ORACLE-VOI,Random,-4.85,-8.05,-2.11,741,1206,453,1431.0,0.00016887330046071872,Length_Scale,2.0
-ORACLE-VOI,Weighted-Heuristic,-1.32,-3.41,0.69,206,817,177,1948.5,0.056695419660109686,Budget_k,k=1
-ORACLE-VOI,Corridor-first (hospital->base),-2.63,-5.06,-0.49,277,686,237,1995.5,0.07266016544850101,Budget_k,k=1
-ORACLE-VOI,Corridor-clearance (base->hospital),-4.89,-8.01,-1.84,302,678,220,1698.5,0.00632661268207057,Budget_k,k=1
-ORACLE-VOI,Highest-Uncertainty,-5.04,-8.06,-2.15,299,665,236,1613.0,0.0018694809781476067,Budget_k,k=1
-ORACLE-VOI,Random,-3.92,-6.8,-1.36,289,679,232,1850.5,0.0218163150498623,Budget_k,k=1
-ORACLE-VOI,Weighted-Heuristic,-2.68,-4.68,-0.87,271,722,207,1859.0,0.02232551152163144,Budget_k,k=2
-ORACLE-VOI,Corridor-first (hospital->base),-5.55,-8.67,-2.55,375,503,322,1832.5,0.017263674475748884,Budget_k,k=2
-ORACLE-VOI,Corridor-clearance (base->hospital),-8.24,-11.58,-5.06,390,530,280,1182.0,3.912797977733227e-06,Budget_k,k=2
-ORACLE-VOI,Highest-Uncertainty,-7.21,-10.44,-4.08,379,563,258,1324.0,3.6366664685075e-05,Budget_k,k=2
-ORACLE-VOI,Random,-7.01,-9.98,-4.24,406,549,245,1172.0,3.369108367246609e-06,Budget_k,k=2
-ORACLE-VOI,Weighted-Heuristic,-2.78,-4.94,-0.59,306,650,244,1846.5,0.019743101878722,Budget_k,k=3
-ORACLE-VOI,Corridor-first (hospital->base),-7.16,-10.04,-4.47,400,471,329,1195.0,4.808543221539519e-06,Budget_k,k=3
-ORACLE-VOI,Corridor-clearance (base->hospital),-6.71,-9.6,-4.11,390,481,329,1449.0,0.00021736774735478065,Budget_k,k=3
-ORACLE-VOI,Highest-Uncertainty,-9.68,-12.61,-6.64,417,509,274,854.0,9.261334500214783e-09,Budget_k,k=3
-ORACLE-VOI,Random,-9.98,-12.94,-7.09,432,531,237,770.5,1.6139253004431304e-09,Budget_k,k=3
-ORACLE-VOI,Weighted-Heuristic,-2.1,-3.95,-0.41,304,675,221,1789.0,0.011723638717891251,Budget_k,k=5
-ORACLE-VOI,Corridor-first (hospital->base),-7.36,-9.99,-4.66,373,543,284,1119.5,1.3477744440376374e-06,Budget_k,k=5
-ORACLE-VOI,Corridor-clearance (base->hospital),-7.27,-9.81,-4.75,366,541,293,1275.5,1.7375613054466928e-05,Budget_k,k=5
-ORACLE-VOI,Highest-Uncertainty,-9.04,-11.58,-6.54,470,482,248,647.0,1.0666945885871782e-10,Budget_k,k=5
-ORACLE-VOI,Random,-9.18,-11.99,-6.5,472,502,226,714.0,4.760390853563277e-10,Budget_k,k=5
-ORACLE-Lookahead-2,Weighted-Heuristic,-2.57,-4.26,-0.95,1260,2675,865,1618.0,0.0018173674444179279,Overall,All (Count Budgets)
-ORACLE-Lookahead-2,Corridor-first (hospital->base),-6.03,-8.15,-4.03,1472,2240,1088,889.0,1.8724303440109396e-08,Overall,All (Count Budgets)
-ORACLE-Lookahead-2,Corridor-clearance (base->hospital),-7.13,-9.43,-4.85,1494,2301,1005,1034.0,2.951117105348223e-07,Overall,All (Count Budgets)
-ORACLE-Lookahead-2,Highest-Uncertainty,-8.1,-10.37,-5.92,1667,2154,979,677.0,2.0975366305746773e-10,Overall,All (Count Budgets)
-ORACLE-Lookahead-2,Random,-7.88,-10.17,-5.75,1710,2186,904,708.0,4.172445151568837e-10,Overall,All (Count Budgets)
-ORACLE-Lookahead-2,ORACLE-VOI,-0.36,-1.02,0.34,596,3779,425,1853.5,0.020952352867524306,Overall,All (Count Budgets)
-ORACLE-Lookahead-2,Weighted-Heuristic,-6.28,-9.66,-2.86,507,862,231,1360.0,6.458071749417774e-05,Setting,reliable
-ORACLE-Lookahead-2,Corridor-first (hospital->base),-7.42,-11.36,-3.85,385,770,445,1622.0,0.0019710442831392437,Setting,reliable
-ORACLE-Lookahead-2,Corridor-clearance (base->hospital),-8.78,-13.07,-4.61,392,809,399,1645.0,0.0025227470368697795,Setting,reliable
-ORACLE-Lookahead-2,Highest-Uncertainty,-13.44,-18.36,-8.5,628,672,300,995.0,1.4355718709886548e-07,Setting,reliable
-ORACLE-Lookahead-2,Random,-12.67,-17.16,-8.39,628,701,271,912.0,2.9512064228850403e-08,Setting,reliable
-ORACLE-Lookahead-2,ORACLE-VOI,-1.03,-2.52,0.43,267,1192,141,1255.5,2.2861166971282053e-05,Setting,reliable
-ORACLE-Lookahead-2,Weighted-Heuristic,-1.49,-3.5,0.66,371,935,294,1879.0,0.027519618701055733,Setting,mixed
-ORACLE-Lookahead-2,Corridor-first (hospital->base),-8.17,-11.34,-5.15,494,734,372,1098.0,9.517145176845054e-07,Setting,mixed
-ORACLE-Lookahead-2,Corridor-clearance (base->hospital),-9.19,-12.54,-5.78,490,779,331,1069.0,5.601035039891776e-07,Setting,mixed
-ORACLE-Lookahead-2,Highest-Uncertainty,-9.27,-13.02,-5.68,505,740,355,1231.0,9.038385857930763e-06,Setting,mixed
-ORACLE-Lookahead-2,Random,-8.51,-12.29,-5.0,505,735,360,1236.0,1.0100773360694702e-05,Setting,mixed
-ORACLE-Lookahead-2,ORACLE-VOI,-0.14,-1.38,1.17,165,1279,156,2352.0,0.739377706790152,Setting,mixed
-ORACLE-Lookahead-2,Weighted-Heuristic,0.04,-1.43,1.2,382,878,340,2238.0,0.32881168048681564,Setting,harsh
-ORACLE-Lookahead-2,Corridor-first (hospital->base),-2.49,-4.38,-0.78,593,736,271,1100.5,9.77130684440525e-07,Setting,harsh
-ORACLE-Lookahead-2,Corridor-clearance (base->hospital),-3.43,-5.64,-1.33,612,713,275,1113.5,1.2465699168257618e-06,Setting,harsh
-ORACLE-Lookahead-2,Highest-Uncertainty,-1.59,-3.44,0.06,534,742,324,1774.0,0.00986636287584931,Setting,harsh
-ORACLE-Lookahead-2,Random,-2.46,-3.84,-1.23,577,750,273,1164.0,2.947311038362044e-06,Setting,harsh
-ORACLE-Lookahead-2,ORACLE-VOI,0.1,-0.4,0.61,164,1308,128,2080.0,0.20394358227615783,Setting,harsh
-ORACLE-Lookahead-2,Weighted-Heuristic,-3.34,-4.71,-2.01,717,1291,392,953.0,6.47900825940491e-08,Source,perfect
-ORACLE-Lookahead-2,Corridor-first (hospital->base),-7.07,-9.03,-5.15,776,1083,541,683.0,2.3982552911437016e-10,Source,perfect
-ORACLE-Lookahead-2,Corridor-clearance (base->hospital),-8.55,-10.7,-6.41,787,1115,498,644.0,1.0077799276127947e-10,Source,perfect
-ORACLE-Lookahead-2,Highest-Uncertainty,-10.25,-12.41,-8.12,979,987,434,204.0,1.4590266914405483e-15,Source,perfect
-ORACLE-Lookahead-2,Random,-11.08,-13.57,-8.74,1014,975,411,333.0,4.816144054657832e-14,Source,perfect
-ORACLE-Lookahead-2,ORACLE-VOI,-0.17,-0.82,0.51,314,1874,212,1835.0,0.018167658106513385,Source,perfect
-ORACLE-Lookahead-2,Weighted-Heuristic,-1.81,-3.98,0.42,543,1384,473,1918.0,0.03734967934964692,Source,satellite
-ORACLE-Lookahead-2,Corridor-first (hospital->base),-4.99,-7.67,-2.09,696,1157,547,1503.0,0.0004500716112014535,Source,satellite
-ORACLE-Lookahead-2,Corridor-clearance (base->hospital),-5.72,-8.63,-2.72,707,1186,507,1498.0,0.0004218420796067782,Source,satellite
-ORACLE-Lookahead-2,Highest-Uncertainty,-5.95,-8.91,-3.0,688,1167,545,1555.0,0.0008683281776973174,Source,satellite
-ORACLE-Lookahead-2,Random,-4.67,-7.63,-1.92,696,1211,493,1509.0,0.00048627267700282375,Source,satellite
-ORACLE-Lookahead-2,ORACLE-VOI,-0.55,-1.54,0.57,282,1905,213,2115.5,0.17813772503009517,Source,satellite
-ORACLE-Lookahead-2,Weighted-Heuristic,-3.68,-6.1,-1.6,630,1320,450,1581.0,0.001178371487902393,Length_Scale,0.0
-ORACLE-Lookahead-2,Corridor-first (hospital->base),-7.83,-10.94,-4.85,770,1037,593,1203.0,5.526140855720003e-06,Length_Scale,0.0
-ORACLE-Lookahead-2,Corridor-clearance (base->hospital),-9.36,-13.08,-6.19,765,1106,529,1280.0,1.8773352100992837e-05,Length_Scale,0.0
-ORACLE-Lookahead-2,Highest-Uncertainty,-8.62,-11.67,-5.65,845,1024,531,932.0,4.319830929241881e-08,Length_Scale,0.0
-ORACLE-Lookahead-2,Random,-10.81,-14.36,-7.66,895,1031,474,739.0,8.208201130824983e-10,Length_Scale,0.0
-ORACLE-Lookahead-2,ORACLE-VOI,-0.62,-1.76,0.5,289,1881,230,1973.0,0.07116377492384379,Length_Scale,0.0
-ORACLE-Lookahead-2,Weighted-Heuristic,-1.47,-3.77,0.74,630,1355,415,1987.0,0.06433967520159116,Length_Scale,2.0
-ORACLE-Lookahead-2,Corridor-first (hospital->base),-4.24,-7.1,-1.58,702,1203,495,1658.0,0.002872807965239512,Length_Scale,2.0
-ORACLE-Lookahead-2,Corridor-clearance (base->hospital),-4.91,-7.86,-2.16,729,1195,476,1681.0,0.003708522618562532,Length_Scale,2.0
-ORACLE-Lookahead-2,Highest-Uncertainty,-7.58,-10.75,-4.62,822,1130,448,1024.5,2.4799370871718035e-07,Length_Scale,2.0
-ORACLE-Lookahead-2,Random,-4.95,-7.94,-2.14,815,1155,430,1293.0,2.2925815867781166e-05,Length_Scale,2.0
-ORACLE-Lookahead-2,ORACLE-VOI,-0.09,-0.93,0.82,307,1898,195,1984.0,0.06810964477467618,Length_Scale,2.0
-ORACLE-Lookahead-2,Weighted-Heuristic,-1.33,-3.45,0.87,229,765,206,2085.0,0.1429107987608653,Budget_k,k=1
-ORACLE-Lookahead-2,Corridor-first (hospital->base),-2.64,-5.08,-0.4,283,675,242,1975.5,0.06235995609796825,Budget_k,k=1
-ORACLE-Lookahead-2,Corridor-clearance (base->hospital),-4.9,-7.99,-1.8,301,676,223,1686.0,0.004746948937677706,Budget_k,k=1
-ORACLE-Lookahead-2,Highest-Uncertainty,-5.05,-8.11,-2.21,304,650,246,1611.5,0.0019013289401611103,Budget_k,k=1
-ORACLE-Lookahead-2,Random,-3.93,-6.71,-1.31,277,698,225,1702.5,0.005658019651006328,Budget_k,k=1
-ORACLE-Lookahead-2,ORACLE-VOI,-0.01,-0.9,0.81,57,1080,63,1686.0,0.35965266617097247,Budget_k,k=1
-ORACLE-Lookahead-2,Weighted-Heuristic,-3.38,-5.37,-1.51,321,669,210,1478.0,0.0003310638097683698,Budget_k,k=2
-ORACLE-Lookahead-2,Corridor-first (hospital->base),-6.25,-9.19,-3.32,397,507,296,1520.0,0.0005527421965514353,Budget_k,k=2
-ORACLE-Lookahead-2,Corridor-clearance (base->hospital),-8.94,-12.29,-5.64,416,539,245,1017.0,2.1801459685555455e-07,Budget_k,k=2
-ORACLE-Lookahead-2,Highest-Uncertainty,-7.91,-10.96,-4.82,415,547,238,1078.5,6.573976394979505e-07,Budget_k,k=2
-ORACLE-Lookahead-2,Random,-7.71,-10.58,-5.02,429,540,231,923.0,3.6602608114986934e-08,Budget_k,k=2
-ORACLE-Lookahead-2,ORACLE-VOI,-0.7,-1.75,0.43,139,967,94,1616.0,0.006815773184787481,Budget_k,k=2
-ORACLE-Lookahead-2,Weighted-Heuristic,-3.26,-5.4,-0.91,339,617,244,1734.0,0.006739363690846206,Budget_k,k=3
-ORACLE-Lookahead-2,Corridor-first (hospital->base),-7.64,-10.3,-4.91,407,493,300,1095.0,8.796831074091287e-07,Budget_k,k=3
-ORACLE-Lookahead-2,Corridor-clearance (base->hospital),-7.19,-9.92,-4.45,399,506,295,1306.0,2.7733863482427985e-05,Budget_k,k=3
-ORACLE-Lookahead-2,Highest-Uncertainty,-10.16,-12.95,-7.17,454,485,261,749.0,1.0185625396694204e-09,Budget_k,k=3
-ORACLE-Lookahead-2,Random,-10.46,-13.54,-7.56,470,494,236,783.0,2.104013443090471e-09,Budget_k,k=3
-ORACLE-Lookahead-2,ORACLE-VOI,-0.48,-1.47,0.53,178,894,128,2176.5,0.24999483335633166,Budget_k,k=3
-ORACLE-Lookahead-2,Weighted-Heuristic,-2.33,-4.34,-0.54,371,624,205,1797.5,0.012370731394201659,Budget_k,k=5
-ORACLE-Lookahead-2,Corridor-first (hospital->base),-7.59,-10.45,-4.74,385,565,250,955.0,7.12593297492402e-08,Budget_k,k=5
-ORACLE-Lookahead-2,Corridor-clearance (base->hospital),-7.51,-9.85,-5.11,378,580,242,1014.0,2.0626474907863474e-07,Budget_k,k=5
-ORACLE-Lookahead-2,Highest-Uncertainty,-9.28,-11.63,-7.03,494,472,234,422.5,4.862076596743238e-13,Budget_k,k=5
-ORACLE-Lookahead-2,Random,-9.42,-12.2,-6.71,534,454,212,647.0,1.1033678421497326e-10,Budget_k,k=5
-ORACLE-Lookahead-2,ORACLE-VOI,-0.24,-1.52,1.1,222,838,140,2080.0,0.12728111931251723,Budget_k,k=5
+Target,Baseline,Mean_Regret_Diff,Regret_Diff_CI,Catastrophic_Failure_Diff,Wins,Ties,Losses,Wilcoxon_W,Wilcoxon_p,Analysis_Type,Subgroup_Type,Subgroup_Value,Holm_p
+ORACLE-Lookahead-2,Weighted-Heuristic,-2.57,"[-4.26, -0.95]","-2.0% [-3.4%, -0.7%]",1260,2675,865,1618.0,0.0018173674444179279,Confirmatory Headline,Overall,All (Count Budgets),0.005452102333253783
+ORACLE-Lookahead-2,Corridor-first (hospital->base),-6.03,"[-8.15, -4.03]","-5.0% [-6.8%, -3.3%]",1472,2240,1088,889.0,1.8724303440109396e-08,Confirmatory Headline,Overall,All (Count Budgets),1.3107012408076578e-07
+ORACLE-Lookahead-2,Corridor-clearance (base->hospital),-7.13,"[-9.43, -4.85]","-5.9% [-7.8%, -4.0%]",1494,2301,1005,1034.0,2.951117105348223e-07,Confirmatory Headline,Overall,All (Count Budgets),1.7706702632089337e-06
+ORACLE-Lookahead-2,Highest-Uncertainty,-8.1,"[-10.37, -5.92]","-6.6% [-8.5%, -4.8%]",1667,2154,979,677.0,2.0975366305746773e-10,Confirmatory Headline,Overall,All (Count Budgets),2.307290293632145e-09
+ORACLE-Lookahead-2,Random,-7.88,"[-10.17, -5.75]","-6.4% [-8.3%, -4.6%]",1710,2186,904,708.0,4.172445151568837e-10,Confirmatory Headline,Overall,All (Count Budgets),4.172445151568837e-09
+ORACLE-Lookahead-2,ORACLE-VOI,-0.36,"[-1.02, 0.34]","-0.2% [-0.8%, 0.4%]",596,3779,425,1853.5,0.020952352867524306,Confirmatory Headline,Overall,All (Count Budgets),0.020952352867524306
+ORACLE-VOI,Weighted-Heuristic,-2.22,"[-3.85, -0.61]","-1.8% [-3.1%, -0.5%]",1087,2864,849,1747.5,0.007510915069078056,Confirmatory Headline,Overall,All (Count Budgets),0.015021830138156111
+ORACLE-VOI,Corridor-first (hospital->base),-5.67,"[-7.96, -3.52]","-4.8% [-6.7%, -2.9%]",1425,2203,1172,1123.0,1.431762955460767e-06,Confirmatory Headline,Overall,All (Count Budgets),5.727051821843068e-06
+ORACLE-VOI,Corridor-clearance (base->hospital),-6.78,"[-9.39, -4.53]","-5.7% [-7.8%, -3.8%]",1448,2230,1122,1109.0,1.1235299519290757e-06,Confirmatory Headline,Overall,All (Count Budgets),5.617649759645379e-06
+ORACLE-VOI,Highest-Uncertainty,-7.74,"[-10.17, -5.43]","-6.4% [-8.4%, -4.4%]",1565,2219,1016,862.0,1.0782686894393923e-08,Confirmatory Headline,Overall,All (Count Budgets),8.626149515515139e-08
+ORACLE-VOI,Random,-7.52,"[-9.88, -5.31]","-6.1% [-8.1%, -4.3%]",1599,2261,940,745.0,9.344729313660313e-10,Confirmatory Headline,Overall,All (Count Budgets),8.410256382294281e-09
+ORACLE-Lookahead-2,Weighted-Heuristic,-6.28,"[-9.66, -2.86]","-4.9% [-7.8%, -2.1%]",507,862,231,1360.0,6.458071749417774e-05,Exploratory Subgroup,Setting,reliable,0.00400400448463902
+ORACLE-Lookahead-2,Corridor-first (hospital->base),-7.42,"[-11.36, -3.85]","-6.3% [-9.6%, -3.2%]",385,770,445,1622.0,0.0019710442831392437,Exploratory Subgroup,Setting,reliable,0.08475490417498747
+ORACLE-Lookahead-2,Corridor-clearance (base->hospital),-8.78,"[-13.07, -4.61]","-7.4% [-11.0%, -4.0%]",392,809,399,1645.0,0.0025227470368697795,Exploratory Subgroup,Setting,reliable,0.10595537554853074
+ORACLE-Lookahead-2,Highest-Uncertainty,-13.44,"[-18.36, -8.50]","-11.0% [-15.1%, -6.9%]",628,672,300,995.0,1.4355718709886548e-07,Exploratory Subgroup,Setting,reliable,1.3925047148589952e-05
+ORACLE-Lookahead-2,Random,-12.67,"[-17.16, -8.39]","-10.3% [-14.1%, -6.7%]",628,701,271,912.0,2.9512064228850403e-08,Exploratory Subgroup,Setting,reliable,3.0397426155715914e-06
+ORACLE-Lookahead-2,ORACLE-VOI,-1.03,"[-2.52, 0.43]","-0.7% [-1.9%, 0.6%]",267,1192,141,1255.5,2.2861166971282053e-05,Exploratory Subgroup,Setting,reliable,0.0015545593540471797
+ORACLE-Lookahead-2,Weighted-Heuristic,-1.49,"[-3.50, 0.66]","-1.1% [-2.8%, 0.6%]",371,935,294,1879.0,0.027519618701055733,Exploratory Subgroup,Setting,mixed,0.605670362946974
+ORACLE-Lookahead-2,Corridor-first (hospital->base),-8.17,"[-11.34, -5.15]","-6.8% [-9.5%, -4.2%]",494,734,372,1098.0,9.517145176845054e-07,Exploratory Subgroup,Setting,mixed,8.470259207392098e-05
+ORACLE-Lookahead-2,Corridor-clearance (base->hospital),-9.19,"[-12.54, -5.78]","-7.7% [-10.6%, -4.8%]",490,779,331,1069.0,5.601035039891776e-07,Exploratory Subgroup,Setting,mixed,5.152952236700434e-05
+ORACLE-Lookahead-2,Highest-Uncertainty,-9.27,"[-13.02, -5.68]","-7.8% [-10.9%, -4.7%]",505,740,355,1231.0,9.038385857930763e-06,Exploratory Subgroup,Setting,mixed,0.000686917325202738
+ORACLE-Lookahead-2,Random,-8.51,"[-12.29, -5.00]","-7.1% [-10.2%, -4.1%]",505,735,360,1236.0,1.0100773360694702e-05,Exploratory Subgroup,Setting,mixed,0.0007575580020521027
+ORACLE-Lookahead-2,ORACLE-VOI,-0.14,"[-1.38, 1.17]","-0.1% [-1.1%, 0.9%]",165,1279,156,2352.0,0.739377706790152,Exploratory Subgroup,Setting,mixed,1.0
+ORACLE-Lookahead-2,Weighted-Heuristic,0.04,"[-1.43, 1.20]","0.0% [-1.3%, 1.0%]",382,878,340,2238.0,0.32881168048681564,Exploratory Subgroup,Setting,harsh,1.0
+ORACLE-Lookahead-2,Corridor-first (hospital->base),-2.49,"[-4.38, -0.78]","-1.8% [-3.4%, -0.3%]",593,736,271,1100.5,9.77130684440525e-07,Exploratory Subgroup,Setting,harsh,8.59875002307662e-05
+ORACLE-Lookahead-2,Corridor-clearance (base->hospital),-3.43,"[-5.64, -1.33]","-2.6% [-4.5%, -0.9%]",612,713,275,1113.5,1.2465699168257618e-06,Exploratory Subgroup,Setting,harsh,0.00010720501284701551
+ORACLE-Lookahead-2,Highest-Uncertainty,-1.59,"[-3.44, 0.06]","-1.1% [-2.8%, 0.2%]",534,742,324,1774.0,0.00986636287584931,Exploratory Subgroup,Setting,harsh,0.3157236120271779
+ORACLE-Lookahead-2,Random,-2.46,"[-3.84, -1.23]","-1.8% [-2.9%, -0.7%]",577,750,273,1164.0,2.947311038362044e-06,Exploratory Subgroup,Setting,harsh,0.0002475741272224117
+ORACLE-Lookahead-2,ORACLE-VOI,0.1,"[-0.40, 0.61]","0.1% [-0.3%, 0.6%]",164,1308,128,2080.0,0.20394358227615783,Exploratory Subgroup,Setting,harsh,1.0
+ORACLE-Lookahead-2,Weighted-Heuristic,-3.34,"[-4.71, -2.01]","-2.5% [-3.7%, -1.5%]",717,1291,392,953.0,6.47900825940491e-08,Exploratory Subgroup,Source,perfect,6.479008259404909e-06
+ORACLE-Lookahead-2,Corridor-first (hospital->base),-7.07,"[-9.03, -5.15]","-5.8% [-7.5%, -4.2%]",776,1083,541,683.0,2.3982552911437016e-10,Exploratory Subgroup,Source,perfect,2.7100284789923828e-08
+ORACLE-Lookahead-2,Corridor-clearance (base->hospital),-8.55,"[-10.70, -6.41]","-7.1% [-8.9%, -5.2%]",787,1115,498,644.0,1.0077799276127947e-10,Exploratory Subgroup,Source,perfect,1.1690247160308418e-08
+ORACLE-Lookahead-2,Highest-Uncertainty,-10.25,"[-12.41, -8.12]","-8.2% [-10.1%, -6.5%]",979,987,434,204.0,1.4590266914405483e-15,Exploratory Subgroup,Source,perfect,1.7654222966430635e-13
+ORACLE-Lookahead-2,Random,-11.08,"[-13.57, -8.74]","-8.9% [-11.0%, -6.9%]",1014,975,411,333.0,4.816144054657832e-14,Exploratory Subgroup,Source,perfect,5.779372865589399e-12
+ORACLE-Lookahead-2,ORACLE-VOI,-0.17,"[-0.82, 0.51]","-0.0% [-0.6%, 0.5%]",314,1874,212,1835.0,0.018167658106513385,Exploratory Subgroup,Source,perfect,0.4905267688758614
+ORACLE-Lookahead-2,Weighted-Heuristic,-1.81,"[-3.98, 0.42]","-1.5% [-3.3%, 0.4%]",543,1384,473,1918.0,0.03734967934964692,Exploratory Subgroup,Source,satellite,0.7469935869929384
+ORACLE-Lookahead-2,Corridor-first (hospital->base),-4.99,"[-7.67, -2.09]","-4.1% [-6.4%, -1.7%]",696,1157,547,1503.0,0.0004500716112014535,Exploratory Subgroup,Source,satellite,0.025204010227281397
+ORACLE-Lookahead-2,Corridor-clearance (base->hospital),-5.72,"[-8.63, -2.72]","-4.8% [-7.2%, -2.2%]",707,1186,507,1498.0,0.0004218420796067782,Exploratory Subgroup,Source,satellite,0.02404499853758636
+ORACLE-Lookahead-2,Highest-Uncertainty,-5.95,"[-8.91, -3.00]","-5.0% [-7.5%, -2.5%]",688,1167,545,1555.0,0.0008683281776973174,Exploratory Subgroup,Source,satellite,0.04428473706256319
+ORACLE-Lookahead-2,Random,-4.67,"[-7.63, -1.92]","-3.8% [-6.3%, -1.5%]",696,1211,493,1509.0,0.00048627267700282375,Exploratory Subgroup,Source,satellite,0.026744997235155308
+ORACLE-Lookahead-2,ORACLE-VOI,-0.55,"[-1.54, 0.57]","-0.4% [-1.2%, 0.5%]",282,1905,213,2115.5,0.17813772503009517,Exploratory Subgroup,Source,satellite,1.0
+ORACLE-Lookahead-2,Weighted-Heuristic,-3.68,"[-6.10, -1.60]","-3.0% [-5.0%, -1.2%]",630,1320,450,1581.0,0.001178371487902393,Exploratory Subgroup,Length_Scale,0.0,0.058918574395119654
+ORACLE-Lookahead-2,Corridor-first (hospital->base),-7.83,"[-10.94, -4.85]","-6.5% [-9.1%, -4.0%]",770,1037,593,1203.0,5.526140855720003e-06,Exploratory Subgroup,Length_Scale,0.0,0.00044209126845760026
+ORACLE-Lookahead-2,Corridor-clearance (base->hospital),-9.36,"[-13.08, -6.19]","-7.8% [-11.0%, -5.1%]",765,1106,529,1280.0,1.8773352100992837e-05,Exploratory Subgroup,Length_Scale,0.0,0.0013141346470694987
+ORACLE-Lookahead-2,Highest-Uncertainty,-8.62,"[-11.67, -5.65]","-7.1% [-9.7%, -4.7%]",845,1024,531,932.0,4.319830929241881e-08,Exploratory Subgroup,Length_Scale,0.0,4.3630292385343e-06
+ORACLE-Lookahead-2,Random,-10.81,"[-14.36, -7.66]","-8.9% [-11.8%, -6.3%]",895,1031,474,739.0,8.208201130824983e-10,Exploratory Subgroup,Length_Scale,0.0,9.111103255215731e-08
+ORACLE-Lookahead-2,ORACLE-VOI,-0.62,"[-1.76, 0.50]","-0.5% [-1.4%, 0.5%]",289,1881,230,1973.0,0.07116377492384379,Exploratory Subgroup,Length_Scale,0.0,1.0
+ORACLE-Lookahead-2,Weighted-Heuristic,-1.47,"[-3.77, 0.74]","-1.0% [-3.0%, 0.8%]",630,1355,415,1987.0,0.06433967520159116,Exploratory Subgroup,Length_Scale,2.0,1.0
+ORACLE-Lookahead-2,Corridor-first (hospital->base),-4.24,"[-7.10, -1.58]","-3.4% [-5.8%, -1.2%]",702,1203,495,1658.0,0.002872807965239512,Exploratory Subgroup,Length_Scale,2.0,0.11778512657481999
+ORACLE-Lookahead-2,Corridor-clearance (base->hospital),-4.91,"[-7.86, -2.16]","-4.0% [-6.5%, -1.7%]",729,1195,476,1681.0,0.003708522618562532,Exploratory Subgroup,Length_Scale,2.0,0.14834090474250128
+ORACLE-Lookahead-2,Highest-Uncertainty,-7.58,"[-10.75, -4.62]","-6.1% [-8.7%, -3.6%]",822,1130,448,1024.5,2.4799370871718035e-07,Exploratory Subgroup,Length_Scale,2.0,2.3296225939420017e-05
+ORACLE-Lookahead-2,Random,-4.95,"[-7.94, -2.14]","-3.8% [-6.3%, -1.5%]",815,1155,430,1293.0,2.2925815867781166e-05,Exploratory Subgroup,Length_Scale,2.0,0.0015545593540471797
+ORACLE-Lookahead-2,ORACLE-VOI,-0.09,"[-0.93, 0.82]","0.0% [-0.7%, 0.8%]",307,1898,195,1984.0,0.06810964477467618,Exploratory Subgroup,Length_Scale,2.0,1.0
+ORACLE-Lookahead-2,Weighted-Heuristic,-1.33,"[-3.45, 0.87]","-1.1% [-2.8%, 0.8%]",229,765,206,2085.0,0.1429107987608653,Exploratory Subgroup,Budget_k,k=1,1.0
+ORACLE-Lookahead-2,Corridor-first (hospital->base),-2.64,"[-5.08, -0.40]","-2.2% [-4.2%, -0.2%]",283,675,242,1975.5,0.06235995609796825,Exploratory Subgroup,Budget_k,k=1,1.0
+ORACLE-Lookahead-2,Corridor-clearance (base->hospital),-4.9,"[-7.99, -1.80]","-4.1% [-6.7%, -1.5%]",301,676,223,1686.0,0.004746948937677706,Exploratory Subgroup,Budget_k,k=1,0.17785116837993817
+ORACLE-Lookahead-2,Highest-Uncertainty,-5.05,"[-8.11, -2.21]","-4.2% [-6.8%, -1.8%]",304,650,246,1611.5,0.0019013289401611103,Exploratory Subgroup,Budget_k,k=1,0.0841266440166423
+ORACLE-Lookahead-2,Random,-3.93,"[-6.71, -1.31]","-3.2% [-5.6%, -1.1%]",277,698,225,1702.5,0.005658019651006328,Exploratory Subgroup,Budget_k,k=1,0.2036887074362278
+ORACLE-Lookahead-2,ORACLE-VOI,-0.01,"[-0.90, 0.81]","0.0% [-0.8%, 0.7%]",57,1080,63,1686.0,0.35965266617097247,Exploratory Subgroup,Budget_k,k=1,1.0
+ORACLE-Lookahead-2,Weighted-Heuristic,-3.38,"[-5.37, -1.51]","-2.7% [-4.3%, -1.1%]",321,669,210,1478.0,0.0003310638097683698,Exploratory Subgroup,Budget_k,k=2,0.019201700966565448
+ORACLE-Lookahead-2,Corridor-first (hospital->base),-6.25,"[-9.19, -3.32]","-5.2% [-7.7%, -2.8%]",397,507,296,1520.0,0.0005527421965514353,Exploratory Subgroup,Budget_k,k=2,0.028742594220674638
+ORACLE-Lookahead-2,Corridor-clearance (base->hospital),-8.94,"[-12.29, -5.64]","-7.4% [-10.2%, -4.7%]",416,539,245,1017.0,2.1801459685555455e-07,Exploratory Subgroup,Budget_k,k=2,2.071138670127768e-05
+ORACLE-Lookahead-2,Highest-Uncertainty,-7.91,"[-10.96, -4.82]","-6.5% [-9.1%, -3.9%]",415,547,238,1078.5,6.573976394979505e-07,Exploratory Subgroup,Budget_k,k=2,5.98231851943135e-05
+ORACLE-Lookahead-2,Random,-7.71,"[-10.58, -5.02]","-6.2% [-8.7%, -4.0%]",429,540,231,923.0,3.6602608114986934e-08,Exploratory Subgroup,Budget_k,k=2,3.7334660277286673e-06
+ORACLE-Lookahead-2,ORACLE-VOI,-0.7,"[-1.75, 0.43]","-0.5% [-1.3%, 0.4%]",139,967,94,1616.0,0.006815773184787481,Exploratory Subgroup,Budget_k,k=2,0.229138365488771
+ORACLE-Lookahead-2,Weighted-Heuristic,-3.26,"[-5.40, -0.91]","-2.6% [-4.3%, -0.6%]",339,617,244,1734.0,0.006739363690846206,Exploratory Subgroup,Budget_k,k=3,0.229138365488771
+ORACLE-Lookahead-2,Corridor-first (hospital->base),-7.64,"[-10.30, -4.91]","-6.3% [-8.6%, -4.1%]",407,493,300,1095.0,8.796831074091287e-07,Exploratory Subgroup,Budget_k,k=3,7.917147966682158e-05
+ORACLE-Lookahead-2,Corridor-clearance (base->hospital),-7.19,"[-9.92, -4.45]","-6.0% [-8.2%, -3.7%]",399,506,295,1306.0,2.7733863482427985e-05,Exploratory Subgroup,Budget_k,k=3,0.001830434989840247
+ORACLE-Lookahead-2,Highest-Uncertainty,-10.16,"[-12.95, -7.17]","-8.3% [-10.7%, -5.8%]",454,485,261,749.0,1.0185625396694204e-09,Exploratory Subgroup,Budget_k,k=3,1.1204187936363624e-07
+ORACLE-Lookahead-2,Random,-10.46,"[-13.54, -7.56]","-8.5% [-11.1%, -6.1%]",470,494,236,783.0,2.104013443090471e-09,Exploratory Subgroup,Budget_k,k=3,2.2723345185377086e-07
+ORACLE-Lookahead-2,ORACLE-VOI,-0.48,"[-1.47, 0.53]","-0.3% [-1.2%, 0.5%]",178,894,128,2176.5,0.24999483335633166,Exploratory Subgroup,Budget_k,k=3,1.0
+ORACLE-Lookahead-2,Weighted-Heuristic,-2.33,"[-4.34, -0.54]","-1.8% [-3.4%, -0.2%]",371,624,205,1797.5,0.012370731394201659,Exploratory Subgroup,Budget_k,k=5,0.3587512104318481
+ORACLE-Lookahead-2,Corridor-first (hospital->base),-7.59,"[-10.45, -4.74]","-6.2% [-8.6%, -3.8%]",385,565,250,955.0,7.12593297492402e-08,Exploratory Subgroup,Budget_k,k=5,7.054673645174781e-06
+ORACLE-Lookahead-2,Corridor-clearance (base->hospital),-7.51,"[-9.85, -5.11]","-6.2% [-8.2%, -4.2%]",378,580,242,1014.0,2.0626474907863474e-07,Exploratory Subgroup,Budget_k,k=5,1.9801415911548937e-05
+ORACLE-Lookahead-2,Highest-Uncertainty,-9.28,"[-11.63, -7.03]","-7.5% [-9.5%, -5.7%]",494,472,234,422.5,4.862076596743238e-13,Exploratory Subgroup,Budget_k,k=5,5.688629618189589e-11
+ORACLE-Lookahead-2,Random,-9.42,"[-12.20, -6.71]","-7.5% [-9.8%, -5.2%]",534,454,212,647.0,1.1033678421497326e-10,Exploratory Subgroup,Budget_k,k=5,1.2578393400506952e-08
+ORACLE-Lookahead-2,ORACLE-VOI,-0.24,"[-1.52, 1.10]","-0.1% [-1.2%, 1.1%]",222,838,140,2080.0,0.12728111931251723,Exploratory Subgroup,Budget_k,k=5,1.0
+ORACLE-VOI,Weighted-Heuristic,-5.24,"[-8.66, -1.84]","-4.2% [-7.1%, -1.4%]",395,965,240,1695.0,0.004680293904735215,Exploratory Subgroup,Setting,reliable,0.17785116837993817
+ORACLE-VOI,Corridor-first (hospital->base),-6.39,"[-10.59, -2.55]","-5.6% [-9.1%, -2.4%]",356,725,519,1881.0,0.029370812675787422,Exploratory Subgroup,Setting,reliable,0.6167870661915359
+ORACLE-VOI,Corridor-clearance (base->hospital),-7.75,"[-12.27, -3.65]","-6.8% [-10.5%, -3.4%]",368,748,484,1874.0,0.026333494041172783,Exploratory Subgroup,Setting,reliable,0.605670362946974
+ORACLE-VOI,Highest-Uncertainty,-12.41,"[-17.06, -7.41]","-10.3% [-14.3%, -6.2%]",560,706,334,1243.5,1.0602623958934106e-05,Exploratory Subgroup,Setting,reliable,0.0007845823952621184
+ORACLE-VOI,Random,-11.63,"[-15.96, -7.70]","-9.6% [-13.2%, -6.3%]",547,750,303,1021.5,2.478321908448938e-07,Exploratory Subgroup,Setting,reliable,2.3296225939420017e-05
+ORACLE-VOI,Weighted-Heuristic,-1.35,"[-3.38, 0.69]","-1.0% [-2.7%, 0.7%]",323,1016,261,1948.5,0.0547458480696989,Exploratory Subgroup,Setting,mixed,1.0
+ORACLE-VOI,Corridor-first (hospital->base),-8.03,"[-11.40, -4.67]","-6.7% [-9.6%, -3.9%]",482,749,369,1251.5,1.222227653430646e-05,Exploratory Subgroup,Setting,mixed,0.0008800039104700651
+ORACLE-VOI,Corridor-clearance (base->hospital),-9.05,"[-12.65, -5.54]","-7.6% [-10.6%, -4.7%]",486,771,343,1107.0,1.1135546336332023e-06,Exploratory Subgroup,Setting,mixed,9.68792531260886e-05
+ORACLE-VOI,Highest-Uncertainty,-9.14,"[-13.19, -5.28]","-7.6% [-11.1%, -4.4%]",484,761,355,1402.0,0.00012093625874744886,Exploratory Subgroup,Setting,mixed,0.007377111783594381
+ORACLE-VOI,Random,-8.37,"[-12.15, -4.64]","-6.9% [-10.1%, -3.9%]",488,753,359,1325.5,4.003732595680782e-05,Exploratory Subgroup,Setting,mixed,0.0025223515352788928
+ORACLE-VOI,Weighted-Heuristic,-0.06,"[-1.67, 1.21]","-0.1% [-1.5%, 0.9%]",369,883,348,2253.5,0.35144497909586203,Exploratory Subgroup,Setting,harsh,1.0
+ORACLE-VOI,Corridor-first (hospital->base),-2.59,"[-4.52, -0.80]","-1.9% [-3.6%, -0.4%]",587,729,284,1216.5,6.88092735167959e-06,Exploratory Subgroup,Setting,harsh,0.0005298314060793284
+ORACLE-VOI,Corridor-clearance (base->hospital),-3.53,"[-5.94, -1.30]","-2.8% [-4.8%, -0.9%]",594,711,295,1244.0,1.0602464800839438e-05,Exploratory Subgroup,Setting,harsh,0.0007845823952621184
+ORACLE-VOI,Highest-Uncertainty,-1.69,"[-3.64, 0.18]","-1.2% [-2.9%, 0.3%]",521,752,327,1788.0,0.011330609214543751,Exploratory Subgroup,Setting,harsh,0.35124888565085627
+ORACLE-VOI,Random,-2.56,"[-3.97, -1.28]","-1.9% [-3.0%, -0.8%]",564,758,278,1284.5,1.9966594175017783e-05,Exploratory Subgroup,Setting,harsh,0.001377694998076227
+ORACLE-VOI,Weighted-Heuristic,-3.17,"[-4.56, -1.86]","-2.5% [-3.7%, -1.4%]",616,1399,385,1205.0,5.709356211512554e-06,Exploratory Subgroup,Source,perfect,0.0004510391407094917
+ORACLE-VOI,Corridor-first (hospital->base),-6.9,"[-9.02, -4.97]","-5.8% [-7.5%, -4.1%]",775,1008,617,835.5,6.282678116811476e-09,Exploratory Subgroup,Source,perfect,6.659638803820165e-07
+ORACLE-VOI,Corridor-clearance (base->hospital),-8.38,"[-10.79, -6.19]","-7.0% [-9.0%, -5.2%]",782,1031,587,803.0,3.2037976455886534e-09,Exploratory Subgroup,Source,perfect,3.428063480779859e-07
+ORACLE-VOI,Highest-Uncertainty,-10.09,"[-12.38, -7.86]","-8.2% [-10.1%, -6.3%]",929,1002,469,338.0,5.493250610251471e-14,Exploratory Subgroup,Source,perfect,6.536968226199251e-12
+ORACLE-VOI,Random,-10.92,"[-13.57, -8.49]","-8.9% [-11.1%, -6.9%]",940,1018,442,397.0,2.540385380669566e-13,Exploratory Subgroup,Source,perfect,2.997654749190088e-11
+ORACLE-VOI,Weighted-Heuristic,-1.27,"[-3.24, 0.74]","-1.1% [-2.8%, 0.6%]",471,1465,464,2173.0,0.23013926391751105,Exploratory Subgroup,Source,satellite,1.0
+ORACLE-VOI,Corridor-first (hospital->base),-4.45,"[-7.34, -1.55]","-3.7% [-6.1%, -1.3%]",650,1195,555,1511.0,0.0004926018769709891,Exploratory Subgroup,Source,satellite,0.026744997235155308
+ORACLE-VOI,Corridor-clearance (base->hospital),-5.17,"[-8.13, -2.22]","-4.3% [-6.8%, -1.9%]",666,1199,535,1604.0,0.0015509092809278886,Exploratory Subgroup,Source,satellite,0.07444364548453866
+ORACLE-VOI,Highest-Uncertainty,-5.4,"[-8.34, -2.35]","-4.6% [-7.0%, -2.0%]",636,1217,547,1692.5,0.004272949311786946,Exploratory Subgroup,Source,satellite,0.1666450231596909
+ORACLE-VOI,Random,-4.13,"[-6.99, -1.35]","-3.4% [-5.8%, -1.1%]",659,1243,498,1609.0,0.001645092440681076,Exploratory Subgroup,Source,satellite,0.07731934471201057
+ORACLE-VOI,Weighted-Heuristic,-3.06,"[-5.57, -0.90]","-2.5% [-4.7%, -0.7%]",558,1414,428,2012.0,0.0780449562258776,Exploratory Subgroup,Length_Scale,0.0,1.0
+ORACLE-VOI,Corridor-first (hospital->base),-7.21,"[-10.64, -4.04]","-6.1% [-9.0%, -3.5%]",764,1013,623,1516.0,0.0005252048108600367,Exploratory Subgroup,Length_Scale,0.0,0.027835854975581945
+ORACLE-VOI,Corridor-clearance (base->hospital),-8.74,"[-12.65, -5.30]","-7.4% [-10.6%, -4.5%]",757,1057,586,1308.0,2.8803147220499617e-05,Exploratory Subgroup,Length_Scale,0.0,0.0018722045693324752
+ORACLE-VOI,Highest-Uncertainty,-8.0,"[-11.57, -4.63]","-6.7% [-9.7%, -3.9%]",811,1044,545,1213.0,6.449772034316297e-06,Exploratory Subgroup,Length_Scale,0.0,0.0005030822186766711
+ORACLE-VOI,Random,-10.19,"[-13.94, -7.10]","-8.5% [-11.6%, -5.9%]",858,1055,487,889.0,1.8724754018346057e-08,Exploratory Subgroup,Length_Scale,0.0,1.9473744179079897e-06
+ORACLE-VOI,Weighted-Heuristic,-1.37,"[-3.51, 0.68]","-1.0% [-2.8%, 0.7%]",529,1450,421,2080.0,0.12728196253714108,Exploratory Subgroup,Length_Scale,2.0,1.0
+ORACLE-VOI,Corridor-first (hospital->base),-4.14,"[-7.31, -1.45]","-3.4% [-6.0%, -1.1%]",661,1190,549,1611.0,0.0016743796804899428,Exploratory Subgroup,Length_Scale,2.0,0.07731934471201057
+ORACLE-VOI,Corridor-clearance (base->hospital),-4.82,"[-7.84, -2.08]","-4.0% [-6.6%, -1.7%]",691,1173,536,1601.0,0.001496816480343499,Exploratory Subgroup,Length_Scale,2.0,0.07334400753683144
+ORACLE-VOI,Highest-Uncertainty,-7.49,"[-10.53, -4.53]","-6.1% [-8.6%, -3.6%]",754,1175,471,958.5,7.198536694611386e-08,Exploratory Subgroup,Length_Scale,2.0,7.054673645174781e-06
+ORACLE-VOI,Random,-4.85,"[-8.05, -2.11]","-3.8% [-6.5%, -1.6%]",741,1206,453,1431.0,0.00016887330046071872,Exploratory Subgroup,Length_Scale,2.0,0.010132398027643123
+ORACLE-VOI,Weighted-Heuristic,-1.32,"[-3.41, 0.69]","-1.1% [-2.8%, 0.7%]",206,817,177,1948.5,0.056695419660109686,Exploratory Subgroup,Budget_k,k=1,1.0
+ORACLE-VOI,Corridor-first (hospital->base),-2.63,"[-5.06, -0.49]","-2.2% [-4.2%, -0.4%]",277,686,237,1995.5,0.07266016544850101,Exploratory Subgroup,Budget_k,k=1,1.0
+ORACLE-VOI,Corridor-clearance (base->hospital),-4.89,"[-8.01, -1.84]","-4.1% [-6.8%, -1.5%]",302,678,220,1698.5,0.00632661268207057,Exploratory Subgroup,Budget_k,k=1,0.22143144387246994
+ORACLE-VOI,Highest-Uncertainty,-5.04,"[-8.06, -2.15]","-4.2% [-6.7%, -1.7%]",299,665,236,1613.0,0.0018694809781476067,Exploratory Subgroup,Budget_k,k=1,0.0841266440166423
+ORACLE-VOI,Random,-3.92,"[-6.80, -1.36]","-3.2% [-5.8%, -1.0%]",289,679,232,1850.5,0.0218163150498623,Exploratory Subgroup,Budget_k,k=1,0.5454078762465575
+ORACLE-VOI,Weighted-Heuristic,-2.68,"[-4.68, -0.87]","-2.2% [-3.9%, -0.6%]",271,722,207,1859.0,0.02232551152163144,Exploratory Subgroup,Budget_k,k=2,0.5454078762465575
+ORACLE-VOI,Corridor-first (hospital->base),-5.55,"[-8.67, -2.55]","-4.8% [-7.4%, -2.2%]",375,503,322,1832.5,0.017263674475748884,Exploratory Subgroup,Budget_k,k=2,0.48338288532096874
+ORACLE-VOI,Corridor-clearance (base->hospital),-8.24,"[-11.58, -5.06]","-6.9% [-9.8%, -4.2%]",390,530,280,1182.0,3.912797977733227e-06,Exploratory Subgroup,Budget_k,k=2,0.0003208494341741246
+ORACLE-VOI,Highest-Uncertainty,-7.21,"[-10.44, -4.08]","-6.0% [-8.7%, -3.4%]",379,563,258,1324.0,3.6366664685075e-05,Exploratory Subgroup,Budget_k,k=2,0.0023274665398448
+ORACLE-VOI,Random,-7.01,"[-9.98, -4.24]","-5.8% [-8.3%, -3.4%]",406,549,245,1172.0,3.369108367246609e-06,Exploratory Subgroup,Budget_k,k=2,0.00027963599448146856
+ORACLE-VOI,Weighted-Heuristic,-2.78,"[-4.94, -0.59]","-2.2% [-4.1%, -0.4%]",306,650,244,1846.5,0.019743101878722,Exploratory Subgroup,Budget_k,k=3,0.513320648846772
+ORACLE-VOI,Corridor-first (hospital->base),-7.16,"[-10.04, -4.47]","-6.0% [-8.4%, -3.8%]",400,471,329,1195.0,4.808543221539519e-06,Exploratory Subgroup,Budget_k,k=3,0.00038949200094470104
+ORACLE-VOI,Corridor-clearance (base->hospital),-6.71,"[-9.60, -4.11]","-5.7% [-8.1%, -3.4%]",390,481,329,1449.0,0.00021736774735478065,Exploratory Subgroup,Budget_k,k=3,0.012824697093932058
+ORACLE-VOI,Highest-Uncertainty,-9.68,"[-12.61, -6.64]","-8.0% [-10.4%, -5.4%]",417,509,274,854.0,9.261334500214783e-09,Exploratory Subgroup,Budget_k,k=3,9.724401225225523e-07
+ORACLE-VOI,Random,-9.98,"[-12.94, -7.09]","-8.2% [-10.7%, -5.8%]",432,531,237,770.5,1.6139253004431304e-09,Exploratory Subgroup,Budget_k,k=3,1.759178577483012e-07
+ORACLE-VOI,Weighted-Heuristic,-2.1,"[-3.95, -0.41]","-1.7% [-3.2%, -0.2%]",304,675,221,1789.0,0.011723638717891251,Exploratory Subgroup,Budget_k,k=5,0.35170916153673754
+ORACLE-VOI,Corridor-first (hospital->base),-7.36,"[-9.99, -4.66]","-6.1% [-8.3%, -3.9%]",373,543,284,1119.5,1.3477744440376374e-06,Exploratory Subgroup,Budget_k,k=5,0.00011456082774319918
+ORACLE-VOI,Corridor-clearance (base->hospital),-7.27,"[-9.81, -4.75]","-6.1% [-8.2%, -3.9%]",366,541,293,1275.5,1.7375613054466928e-05,Exploratory Subgroup,Budget_k,k=5,0.001233668526867152
+ORACLE-VOI,Highest-Uncertainty,-9.04,"[-11.58, -6.54]","-7.4% [-9.5%, -5.3%]",470,482,248,647.0,1.0666945885871782e-10,Exploratory Subgroup,Budget_k,k=5,1.2266987768752549e-08
+ORACLE-VOI,Random,-9.18,"[-11.99, -6.50]","-7.4% [-9.8%, -5.2%]",472,502,226,714.0,4.760390853563277e-10,Exploratory Subgroup,Budget_k,k=5,5.33163775599087e-08

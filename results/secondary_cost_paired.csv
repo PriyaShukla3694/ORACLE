@@ -1,12 +1,12 @@
-Target,Baseline,Mean_Diff,CI_Lower,CI_Upper,Wins,Ties,Losses,Wilcoxon_W,Wilcoxon_p,Subgroup_Type,Subgroup_Value
-ORACLE-VOI,Weighted-Heuristic,-2.72,-4.4,-0.95,769,2215,616,1805.5,0.013365587100346757,Overall,All (Cost Budgets)
-ORACLE-VOI,Corridor-first (hospital->base),-4.21,-6.44,-2.09,1001,1737,862,1626.0,0.0019944580133517296,Overall,All (Cost Budgets)
-ORACLE-VOI,Corridor-clearance (base->hospital),-5.18,-7.61,-2.91,1045,1738,817,1507.0,0.00046488358494524537,Overall,All (Cost Budgets)
-ORACLE-VOI,Highest-Uncertainty,-6.03,-7.98,-4.15,1091,1748,761,894.0,2.0478704108103747e-08,Overall,All (Cost Budgets)
-ORACLE-VOI,Random,-7.36,-9.36,-5.31,1118,1712,770,743.0,8.94981124911862e-10,Overall,All (Cost Budgets)
-ORACLE-Lookahead-2,Weighted-Heuristic,-3.33,-5.13,-1.71,847,2131,622,1559.0,0.0008956007594853812,Overall,All (Cost Budgets)
-ORACLE-Lookahead-2,Corridor-first (hospital->base),-4.82,-7.05,-2.88,1043,1705,852,1465.0,0.0002695725312873565,Overall,All (Cost Budgets)
-ORACLE-Lookahead-2,Corridor-clearance (base->hospital),-5.79,-8.17,-3.62,1086,1711,803,1334.0,4.220810873123465e-05,Overall,All (Cost Budgets)
-ORACLE-Lookahead-2,Highest-Uncertainty,-6.64,-8.54,-4.72,1160,1693,747,778.0,1.8927494096165374e-09,Overall,All (Cost Budgets)
-ORACLE-Lookahead-2,Random,-7.97,-9.93,-6.05,1186,1656,758,634.0,7.932643922218011e-11,Overall,All (Cost Budgets)
-ORACLE-Lookahead-2,ORACLE-VOI,-0.61,-1.35,0.18,359,2971,270,2055.0,0.10833304392007323,Overall,All (Cost Budgets)
+Target,Baseline,Mean_Regret_Diff,Regret_Diff_CI,Catastrophic_Failure_Diff,Wins,Ties,Losses,Wilcoxon_W,Wilcoxon_p,Analysis_Type,Subgroup_Type,Subgroup_Value,Holm_p
+ORACLE-Lookahead-2,Weighted-Heuristic,-3.33,"[-5.13, -1.71]","-2.7% [-4.2%, -1.3%]",847,2131,622,1559.0,0.0008956007594853812,Secondary Cost Budget,Overall,All (Cost Budgets),0.003582403037941525
+ORACLE-Lookahead-2,Corridor-first (hospital->base),-4.82,"[-7.05, -2.88]","-4.0% [-5.9%, -2.4%]",1043,1705,852,1465.0,0.0002695725312873565,Secondary Cost Budget,Overall,All (Cost Budgets),0.001617435187724139
+ORACLE-Lookahead-2,Corridor-clearance (base->hospital),-5.79,"[-8.17, -3.62]","-4.8% [-6.9%, -3.0%]",1086,1711,803,1334.0,4.220810873123465e-05,Secondary Cost Budget,Overall,All (Cost Budgets),0.00029545676111864254
+ORACLE-Lookahead-2,Highest-Uncertainty,-6.64,"[-8.54, -4.72]","-5.5% [-7.1%, -3.9%]",1160,1693,747,778.0,1.8927494096165374e-09,Secondary Cost Budget,Overall,All (Cost Budgets),1.7034744686548835e-08
+ORACLE-Lookahead-2,Random,-7.97,"[-9.93, -6.05]","-6.6% [-8.3%, -5.0%]",1186,1656,758,634.0,7.932643922218011e-11,Secondary Cost Budget,Overall,All (Cost Budgets),8.725908314439812e-10
+ORACLE-Lookahead-2,ORACLE-VOI,-0.61,"[-1.35, 0.18]","-0.5% [-1.1%, 0.2%]",359,2971,270,2055.0,0.10833304392007323,Secondary Cost Budget,Overall,All (Cost Budgets),0.10833304392007323
+ORACLE-VOI,Weighted-Heuristic,-2.72,"[-4.40, -0.95]","-2.2% [-3.6%, -0.8%]",769,2215,616,1805.5,0.013365587100346757,Secondary Cost Budget,Overall,All (Cost Budgets),0.026731174200693514
+ORACLE-VOI,Corridor-first (hospital->base),-4.21,"[-6.44, -2.09]","-3.6% [-5.4%, -1.8%]",1001,1737,862,1626.0,0.0019944580133517296,Secondary Cost Budget,Overall,All (Cost Budgets),0.005983374040055189
+ORACLE-VOI,Corridor-clearance (base->hospital),-5.18,"[-7.61, -2.91]","-4.4% [-6.4%, -2.4%]",1045,1738,817,1507.0,0.00046488358494524537,Secondary Cost Budget,Overall,All (Cost Budgets),0.0023244179247262266
+ORACLE-VOI,Highest-Uncertainty,-6.03,"[-7.98, -4.15]","-5.0% [-6.6%, -3.4%]",1091,1748,761,894.0,2.0478704108103747e-08,Secondary Cost Budget,Overall,All (Cost Budgets),1.6382963286482998e-07
+ORACLE-VOI,Random,-7.36,"[-9.36, -5.31]","-6.1% [-7.8%, -4.4%]",1118,1712,770,743.0,8.94981124911862e-10,Secondary Cost Budget,Overall,All (Cost Budgets),8.94981124911862e-09

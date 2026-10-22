@@ -45,40 +45,45 @@ The terminal demo:
 3. Prints a plain-language explanation of why ORACLE recommends its top road.
 4. Executes full episodes under both ground truth states:
    - **Condition 1 (Road B Passable)**: Demonstrates how ORACLE safely unlocks the 19-minute primary route, saving 26 minutes over conservative detour-bound baselines.
-   - **Condition 2 (Road B Blocked)**: Demonstrates how ORACLE confirms the road is submerged, avoids a 139-minute disaster on the primary corridor, and safely takes the detour, matching or beating all baselines.
+   - **Condition 2 (Road B Blocked)**: Demonstrates how ORACLE confirms the road is blocked by flood waters, avoids a 139-minute disaster on the primary corridor, and safely takes the detour, matching or beating all baselines.
 5. Runs a multi-scenario benchmark across 15 synthetic topologies, demonstrating that ORACLE-VOI achieves substantially lower regret than Weighted-Heuristic and standard baselines.
 
 ---
 
 ## 4. Modeling Assumptions
 
-1. **Gaussian Copula Spatial Prior:**
+1. **Environmental Settings:**
+   - **Reliable:** High road reliability; ~84% of scenarios have at least one passable route.
+   - **Mixed:** Moderate disruption; ~56% of scenarios have at least one passable route.
+   - **Harsh:** Severe disruption where only ~17% of scenarios have any passable route from BASE to HOSPITAL (omniscient passable rate ~17%).
+
+2. **Gaussian Copula Spatial Prior:**
    - Spatial flood dependencies between roads are simulated via a Gaussian copula with covariance $\Sigma_{ij} = \exp(-d_{ij} / \ell)$, where $d_{ij}$ is the Euclidean distance between road midpoints and $\ell$ is the correlation length scale.
    - Road marginal passability probabilities $P(\text{passable})$ exactly match input priors via the standard normal CDF transformation $\Phi(z_i) \le p_i$. When $\ell \to 0$, roads are statistically independent.
 
-2. **Route Cost & Failure Penalty:**
+3. **Route Cost & Failure Penalty:**
    - Base cost equals the sum of edge travel times along the chosen path.
    - If any road on the chosen route is blocked in reality, an emergency failure penalty (`FAIL_PENALTY = 120.0` minutes) is added, modeling turnaround delay and forced rerouting.
 
-3. **Value of Information (VOI):**
+4. **Value of Information (VOI):**
    - Computed as $V_0 - \sum_{m \in \{\text{passable}, \text{blocked}\}} P(m) \min_r \mathbb{E}[\text{cost}_r \mid m]$, where $V_0$ is the current best expected route cost.
    - Correctly evaluates to $0.0$ for roads that cannot alter the optimal routing decision (e.g., dead ends or roads where both outcomes leave the detour or primary route preferred).
 
-4. **Scoring & Urgency:**
+5. **Scoring & Urgency:**
    - ORACLE score: $\text{VOI} \times \text{urgency} / \text{normalized\_cost}$, where $\text{urgency} = 0.5 + 0.5 \times \text{staleness}$ and $\text{normalized\_cost} = \text{cost} / \text{max\_cost}$.
 
-5. **Observation Sources & Sensor Noise:**
+6. **Observation Sources & Sensor Noise:**
    - **Perfect:** `accuracy = 1.0` (ideal ground truth observation).
    - **Field Inspection:** `accuracy = 0.95` (rapid field verification teams).
    - **Satellite Imagery:** Modeled with asymmetric operating characteristics reflecting remote sensing flood classification: True Positive Rate (TPR / sensitivity to passable road) = `0.88`, True Negative Rate (TNR / specificity to flood blockage) = `0.82` (mean accuracy `0.85`).
    - Observations update world weights via exact Bayesian likelihood weighting: $w \propto w_0 \cdot P(\text{report} \mid \text{state})$.
 
-6. **ORACLE Lookahead-2 (Joint VOI):**
+7. **ORACLE Lookahead-2 (Joint VOI):**
    - Evaluates pairs of candidate roads $(e, f)$ across all 4 joint report combinations using the same simulated worlds and Bayesian weights.
    - Computes $\text{Joint-VOI}(e, f) = V_0 - \sum_{(y_e, y_f)} P(y_e, y_f) \min_r \mathbb{E}[\text{cost}_r \mid y_e, y_f]$.
    - Proven non-negative and monotonic: $\text{Joint-VOI}(e, f) \ge \max(\text{VOI}(e), \text{VOI}(f))$.
    - Recommends the first road of the top affordable pair, falling back to myopic VOI when only a single observation fits the remaining budget.
 
-7. **Ground Truth Isolation (No Leakage):**
+8. **Ground Truth Isolation (No Leakage):**
    - Ground truth is private to the `Scenario` object (`_truth`) and is never accessible to `BeliefState`, routing, or ranking strategies.
    - Ground truth is only evaluated post-decision in `simulate.py` to calculate realized cost and regret.
