@@ -200,8 +200,15 @@ def random_scenario(
     seed: int = 42,
     n_nodes: int = 8,
     length_scale: float = 2.0,
+    setting: str = "mixed",
 ) -> Scenario:
-    """Generate a connected synthetic geometric network with BASE and HOSPITAL far apart."""
+    """Generate a connected synthetic geometric network with BASE and HOSPITAL far apart.
+
+    Settings:
+        - 'reliable': mostly reliable roads, Beta(5.0, 1.5) prior, mean ~0.77
+        - 'mixed': default mixed conditions, Beta(2.5, 2.0) prior, mean ~0.55
+        - 'harsh': severe flooding conditions, Beta(1.5, 3.5) prior, mean ~0.30
+    """
     rng = np.random.default_rng(seed)
     graph = nx.Graph()
 
@@ -231,9 +238,17 @@ def random_scenario(
         travel_time = round(d * float(rng.uniform(1.0, 1.5)), 1)
         obs_cost = float(rng.integers(1, 6))
         staleness = round(float(rng.uniform(0.1, 0.9)), 2)
-        # Beta distribution for passable probability
-        p_passable = round(float(rng.beta(2.5, 2.0)), 2)
-        p_passable = max(0.05, min(0.95, p_passable))
+
+        # A priori passability distribution by setting
+        if setting == "reliable":
+            p_raw = float(rng.beta(5.0, 1.5))
+            p_passable = round(max(0.10, min(0.98, p_raw)), 2)
+        elif setting == "harsh":
+            p_raw = float(rng.beta(1.5, 3.5))
+            p_passable = round(max(0.05, min(0.90, p_raw)), 2)
+        else:  # "mixed" default
+            p_raw = float(rng.beta(2.5, 2.0))
+            p_passable = round(max(0.05, min(0.95, p_raw)), 2)
 
         road_id = f"ROAD_{u_n}_{v_n}"
         graph.add_edge(

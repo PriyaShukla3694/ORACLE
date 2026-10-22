@@ -173,15 +173,15 @@ class BaseStrategy:
         raise NotImplementedError
 
 
-class FixedPriority(BaseStrategy):
-    """Corridor-first fixed priority static baseline.
+class CorridorFirstHospitalEnd(BaseStrategy):
+    """Corridor-first (hospital->base) static baseline.
 
     Ignores all beliefs. Computes the shortest BASE->HOSPITAL corridor by nominal travel_time
-    on the full network and ranks roads on that corridor first (in path order from the
-    hospital end), then ranks remaining roads by Euclidean distance to HOSPITAL.
+    on the full network and ranks roads on that corridor first in reverse path order
+    (from the hospital end backward to base), then ranks remaining roads by distance to HOSPITAL.
     """
 
-    name: str = "Fixed-Priority"
+    name: str = "Corridor-first (hospital->base)"
 
     def rank(
         self,
@@ -193,11 +193,11 @@ class FixedPriority(BaseStrategy):
 
         hosp_pos = belief.graph.nodes["HOSPITAL"]["pos"]
 
-        # 1. Compute shortest path by travel_time on the network
+        # Compute shortest path by travel_time on the network
         corridor_road_order: Dict[str, int] = {}
         if nx.has_path(belief.graph, "BASE", "HOSPITAL"):
             path = nx.shortest_path(belief.graph, "BASE", "HOSPITAL", weight="travel_time")
-            # Extract road_ids along the path in reverse order (hospital end to base end)
+            # Reverse order: hospital end to base end
             rev_path_edges = []
             for i in range(len(path) - 1, 0, -1):
                 u, v = path[i - 1], path[i]
@@ -205,11 +205,10 @@ class FixedPriority(BaseStrategy):
                 rev_path_edges.append(edge_data["road_id"])
 
             for idx, rid in enumerate(rev_path_edges):
-                corridor_road_order[rid] = idx  # 0 is closest to hospital along corridor
+                corridor_road_order[rid] = idx
 
         scored = []
         for r in candidates:
-            # Midpoint distance to HOSPITAL
             pos_u = belief.graph.nodes[r.u]["pos"]
             pos_v = belief.graph.nodes[r.v]["pos"]
             mid = ((pos_u[0] + pos_v[0]) / 2.0, (pos_u[1] + pos_v[1]) / 2.0)
@@ -217,9 +216,8 @@ class FixedPriority(BaseStrategy):
 
             if r.road_id in corridor_road_order:
                 order_idx = corridor_road_order[r.road_id]
-                # Priority 1000 minus order index along corridor (0 closest to hospital)
                 score = 1000.0 - float(order_idx)
-                corridor_tag = f"Shortest Corridor (Hosp-order #{order_idx + 1})"
+                corridor_tag = f"Corridor (Hosp-end #{order_idx + 1})"
             else:
                 score = 100.0 - dist_to_hosp
                 corridor_tag = "Off-Corridor"
@@ -233,6 +231,70 @@ class FixedPriority(BaseStrategy):
 
         scored.sort(key=lambda x: (x[1], x[0]), reverse=True)
         return scored
+
+
+class CorridorClearanceBaseFirst(BaseStrategy):
+    """Corridor-clearance (base->hospital) static baseline.
+
+    Ignores all beliefs. Computes the shortest BASE->HOSPITAL corridor by nominal travel_time
+    on the full network and ranks roads on that corridor first in forward path order
+    (outward from the depot/base toward hospital), then ranks remaining roads by distance from BASE.
+    """
+
+    name: str = "Corridor-clearance (base->hospital)"
+
+    def rank(
+        self,
+        belief: BeliefState,
+        candidates: List[RoadEdge],
+    ) -> List[Tuple[str, float, Dict[str, Any]]]:
+        if not candidates:
+            return []
+
+        base_pos = belief.graph.nodes["BASE"]["pos"]
+
+        # Compute shortest path by travel_time on the network
+        corridor_road_order: Dict[str, int] = {}
+        if nx.has_path(belief.graph, "BASE", "HOSPITAL"):
+            path = nx.shortest_path(belief.graph, "BASE", "HOSPITAL", weight="travel_time")
+            # Forward order: base end outward to hospital
+            fwd_path_edges = []
+            for i in range(len(path) - 1):
+                u, v = path[i], path[i + 1]
+                edge_data = belief.graph[u][v]
+                fwd_path_edges.append(edge_data["road_id"])
+
+            for idx, rid in enumerate(fwd_path_edges):
+                corridor_road_order[rid] = idx
+
+        scored = []
+        for r in candidates:
+            pos_u = belief.graph.nodes[r.u]["pos"]
+            pos_v = belief.graph.nodes[r.v]["pos"]
+            mid = ((pos_u[0] + pos_v[0]) / 2.0, (pos_u[1] + pos_v[1]) / 2.0)
+            dist_to_base = float(np.sqrt((mid[0] - base_pos[0]) ** 2 + (mid[1] - base_pos[1]) ** 2))
+
+            if r.road_id in corridor_road_order:
+                order_idx = corridor_road_order[r.road_id]
+                score = 1000.0 - float(order_idx)
+                corridor_tag = f"Corridor (Base-end #{order_idx + 1})"
+            else:
+                score = 100.0 - dist_to_base
+                corridor_tag = "Off-Corridor"
+
+            details = {
+                "corridor": corridor_tag,
+                "dist_from_base": round(dist_to_base, 2),
+                "cost": r.observation_cost,
+            }
+            scored.append((r.road_id, score, details))
+
+        scored.sort(key=lambda x: (x[1], x[0]), reverse=True)
+        return scored
+
+
+# Backward-compatible alias for existing callers
+FixedPriority = CorridorFirstHospitalEnd
 
 
 class HospitalAdjacentFixedPriority(BaseStrategy):
@@ -331,6 +393,9 @@ class WeightedHeuristic(BaseStrategy):
 
     name: str = "Weighted-Heuristic"
 
+    def __init__(self, budget_mode: str = "cost") -> None:
+        self.budget_mode = budget_mode
+
     def rank(
         self,
         belief: BeliefState,
@@ -361,7 +426,7 @@ class WeightedHeuristic(BaseStrategy):
                 importance = 0.1
 
             urgency = 0.5 + 0.5 * r.staleness
-            norm_cost = max(1e-6, r.observation_cost / max_cost)
+            norm_cost = 1.0 if self.budget_mode == "count" else max(1e-6, r.observation_cost / max_cost)
             score = (uncertainty * importance * urgency) / norm_cost
 
             details = {
@@ -381,8 +446,9 @@ class OracleVOI(BaseStrategy):
 
     name: str = "ORACLE-VOI"
 
-    def __init__(self, accuracy: float = 1.0) -> None:
+    def __init__(self, accuracy: float = 1.0, budget_mode: str = "cost") -> None:
         self.accuracy = accuracy
+        self.budget_mode = budget_mode
 
     def rank(
         self,
@@ -397,7 +463,7 @@ class OracleVOI(BaseStrategy):
         for r in candidates:
             raw_voi = voi(belief, r.road_id, accuracy=self.accuracy)
             urgency = 0.5 + 0.5 * r.staleness
-            norm_cost = max(1e-6, r.observation_cost / max_cost)
+            norm_cost = 1.0 if self.budget_mode == "count" else max(1e-6, r.observation_cost / max_cost)
             score = (raw_voi * urgency) / norm_cost
 
             details = {

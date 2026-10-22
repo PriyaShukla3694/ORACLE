@@ -28,21 +28,25 @@ def run_episode(
     scenario: Scenario,
     strategy: BaseStrategy,
     budget: float = 3.0,
+    budget_mode: str = "cost",
     source: str = "perfect",
     n_worlds: int = 2000,
     length_scale: float = 2.0,
     seed: int = 42,
+    worlds: Optional[np.ndarray] = None,
 ) -> Dict[str, Any]:
     """Execute an observation episode under a budget and return evaluation metrics.
 
     Args:
         scenario: Scenario instance containing graph and hidden ground truth.
         strategy: Observation ranking strategy to test.
-        budget: Total observation budget available.
+        budget: Total observation budget available (cost or observation count).
+        budget_mode: "cost" (costs subtracted from budget) or "count" (k observations allowed).
         source: Observation source ('perfect', 'field', 'satellite').
         n_worlds: Number of simulated worlds for Monte Carlo belief state.
         length_scale: Spatial correlation length scale.
         seed: Random seed for world sampling and strategy randomness.
+        worlds: Optional pre-sampled worlds array of shape (S, E).
 
     Returns:
         dict containing observation log, chosen route, realized cost, omniscient cost, regret.
@@ -55,9 +59,12 @@ def run_episode(
     if R == 0:
         raise ValueError("Network has no valid routes from BASE to HOSPITAL.")
 
-    # Sample prior worlds
-    W = sample_worlds(graph, n_worlds=n_worlds, length_scale=length_scale, rng=rng)
-    weights = np.ones(n_worlds, dtype=float) / float(n_worlds)
+    # Sample prior worlds or use pre-sampled
+    if worlds is not None:
+        W = np.array(worlds, copy=False)
+    else:
+        W = sample_worlds(graph, n_worlds=n_worlds, length_scale=length_scale, rng=rng)
+    weights = np.ones(W.shape[0], dtype=float) / float(W.shape[0])
 
     belief = BeliefState(
         worlds=W,
@@ -87,7 +94,8 @@ def run_episode(
 
         for rid, score, details in ranked:
             edge_obj = belief.edge_metadata[belief.road_id_to_idx[rid]]
-            if edge_obj.observation_cost <= remaining_budget:
+            deduct_amount = 1.0 if budget_mode == "count" else edge_obj.observation_cost
+            if deduct_amount <= remaining_budget:
                 chosen_candidate = edge_obj
                 chosen_score = score
                 chosen_details = details
@@ -99,12 +107,13 @@ def run_episode(
 
         step_num += 1
         rid = chosen_candidate.road_id
+        deduct_amount = 1.0 if budget_mode == "count" else chosen_candidate.observation_cost
         obs_cost = chosen_candidate.observation_cost
         _, v0_before = best_route(belief.cost, belief.weights)
 
         # Query scenario observation
         reported = scenario.observe(rid, source=source)
-        remaining_budget -= obs_cost
+        remaining_budget -= deduct_amount
 
         # Update belief
         accuracy = SOURCES.get(source, 1.0)
