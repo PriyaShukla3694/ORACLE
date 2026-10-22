@@ -41,10 +41,12 @@ python demo_cli.py
 
 The terminal demo:
 1. Prints the illustrative flood road network and prior probabilities.
-2. Compares initial recommendations across 5 policies (Fixed-Priority, Highest-Uncertainty, Random, Weighted-Heuristic, and ORACLE-VOI).
+2. Compares initial recommendations across 5 policies (Fixed-Priority Primary Corridor Clearance, Highest-Uncertainty, Random, Weighted-Heuristic, and ORACLE-VOI).
 3. Prints a plain-language explanation of why ORACLE recommends its top road.
-4. Executes a full episode under a budget constraint of 3.0 cost units for all strategies on an identical scenario.
-5. Prints the summary table displaying realized travel cost, omniscient best-route cost, and regret.
+4. Executes full episodes under both ground truth states:
+   - **Condition 1 (Road B Passable)**: Demonstrates how ORACLE safely unlocks the 19-minute primary route, saving 26 minutes over conservative detour-bound baselines.
+   - **Condition 2 (Road B Blocked)**: Demonstrates how ORACLE confirms the road is submerged, avoids a 139-minute disaster on the primary corridor, and safely takes the detour, matching or beating all baselines.
+5. Runs a multi-scenario benchmark across 15 synthetic topologies, demonstrating that ORACLE-VOI achieves substantially lower regret than Weighted-Heuristic and standard baselines.
 
 ---
 
