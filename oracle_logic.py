@@ -118,25 +118,40 @@ def exact_worlds(p_vector: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
     return W, w
 
 
-def voi(belief: BeliefState, road_id: str, accuracy: float = 1.0) -> float:
+def _parse_accuracy(accuracy: float | Tuple[float, float]) -> Tuple[float, float]:
+    """Parse accuracy into (tpr, tnr)."""
+    if isinstance(accuracy, (tuple, list)):
+        return float(accuracy[0]), float(accuracy[1])
+    val = float(accuracy)
+    return val, val
+
+
+def voi(
+    belief: BeliefState,
+    road_id: str,
+    accuracy: float | Tuple[float, float] = 1.0,
+) -> float:
     """Compute the Value of Information (VOI) for observing road_id.
 
     VOI = V0 - sum_{report in {passable, blocked}} min_r (unnormalized_w_report @ cost[:, r])
     where unnormalized_w_report = w * P(report | world).
     Handles correlations automatically across all candidate routes.
+    Supports symmetric accuracy (float) or asymmetric (TPR, TNR) tuple.
     """
     if road_id not in belief.road_id_to_idx:
         raise KeyError(f"Unknown road_id: '{road_id}'")
 
     e_idx = belief.road_id_to_idx[road_id]
     _, v0 = best_route(belief.cost, belief.weights)
+    tpr, tnr = _parse_accuracy(accuracy)
+    s = belief.worlds[:, e_idx]
 
     sum_expected_min_cost = 0.0
     for report in ("passable", "blocked"):
         if report == "passable":
-            likelihood = np.where(belief.worlds[:, e_idx], accuracy, 1.0 - accuracy)
+            likelihood = np.where(s, tpr, 1.0 - tnr)
         else:
-            likelihood = np.where(~belief.worlds[:, e_idx], accuracy, 1.0 - accuracy)
+            likelihood = np.where(s, 1.0 - tpr, tnr)
 
         unnormalized_w = belief.weights * likelihood
         p_report = float(np.sum(unnormalized_w))
@@ -154,6 +169,65 @@ def voi(belief: BeliefState, road_id: str, accuracy: float = 1.0) -> float:
     return float(voi_value)
 
 
+def joint_voi(
+    belief: BeliefState,
+    road_id_1: str,
+    road_id_2: str,
+    accuracy: float | Tuple[float, float] = 1.0,
+) -> float:
+    """Compute the joint Value of Information (VOI) of observing two roads simultaneously.
+
+    Joint-VOI = V0 - sum_{(y1, y2)} min_r ( unnorm_w_{(y1, y2)} @ cost[:, r] )
+    over the 4 report combinations (passable/blocked x passable/blocked).
+
+    Guarantees:
+    - Non-negativity: Joint-VOI >= 0
+    - Monotonicity: Joint-VOI(e1, e2) >= max(VOI(e1), VOI(e2))
+    """
+    if road_id_1 not in belief.road_id_to_idx:
+        raise KeyError(f"Unknown road_id_1: '{road_id_1}'")
+    if road_id_2 not in belief.road_id_to_idx:
+        raise KeyError(f"Unknown road_id_2: '{road_id_2}'")
+
+    if road_id_1 == road_id_2:
+        return voi(belief, road_id_1, accuracy=accuracy)
+
+    e1_idx = belief.road_id_to_idx[road_id_1]
+    e2_idx = belief.road_id_to_idx[road_id_2]
+    _, v0 = best_route(belief.cost, belief.weights)
+    tpr, tnr = _parse_accuracy(accuracy)
+
+    s1 = belief.worlds[:, e1_idx]
+    s2 = belief.worlds[:, e2_idx]
+
+    lik1 = {
+        "passable": np.where(s1, tpr, 1.0 - tnr),
+        "blocked": np.where(s1, 1.0 - tpr, tnr),
+    }
+    lik2 = {
+        "passable": np.where(s2, tpr, 1.0 - tnr),
+        "blocked": np.where(s2, 1.0 - tpr, tnr),
+    }
+
+    sum_expected_min_cost = 0.0
+    for rep1 in ("passable", "blocked"):
+        for rep2 in ("passable", "blocked"):
+            joint_lik = lik1[rep1] * lik2[rep2]
+            unnorm_w = belief.weights * joint_lik
+            p_joint = float(np.sum(unnorm_w))
+            if p_joint <= 1e-12:
+                continue
+
+            exp_costs_for_joint = unnorm_w @ belief.cost
+            min_cost_for_joint = float(np.min(exp_costs_for_joint))
+            sum_expected_min_cost += min_cost_for_joint
+
+    joint_voi_val = v0 - sum_expected_min_cost
+    if joint_voi_val < 1e-9:
+        return 0.0
+    return float(joint_voi_val)
+
+
 # ==============================================================================
 # Inspection Strategies
 # ==============================================================================
@@ -168,6 +242,7 @@ class BaseStrategy:
         self,
         belief: BeliefState,
         candidates: List[RoadEdge],
+        remaining_budget: Optional[float] = None,
     ) -> List[Tuple[str, float, Dict[str, Any]]]:
         """Rank candidates. Returns sorted list of (road_id, score, details_dict) descending."""
         raise NotImplementedError
@@ -454,6 +529,7 @@ class OracleVOI(BaseStrategy):
         self,
         belief: BeliefState,
         candidates: List[RoadEdge],
+        remaining_budget: Optional[float] = None,
     ) -> List[Tuple[str, float, Dict[str, Any]]]:
         if not candidates:
             return []
@@ -477,6 +553,171 @@ class OracleVOI(BaseStrategy):
 
         scored.sort(key=lambda x: (x[1], x[0]), reverse=True)
         return scored
+
+
+class OracleLookahead2(BaseStrategy):
+    """ORACLE policy with 2-step lookahead evaluating joint VOI of road pairs.
+
+    For each candidate road e (and affordable partner road f), computes the joint VOI
+    of observing both over the 4 (or noisy-report) outcome combinations using the same
+    sample worlds and weights.
+    Score = joint VOI / (cost_e + cost_f) for the best affordable pair containing e.
+    Recommends the first road of the best pair (breaking ties by higher single VOI,
+    lower observation cost, then road_id).
+    Falls back to single-road VOI when only one observation fits within remaining budget.
+    """
+
+    name: str = "ORACLE-Lookahead-2"
+
+    def __init__(
+        self,
+        accuracy: float | Tuple[float, float] = 1.0,
+        budget_mode: str = "count",
+    ) -> None:
+        self.accuracy = accuracy
+        self.budget_mode = budget_mode
+
+    def rank(
+        self,
+        belief: BeliefState,
+        candidates: List[RoadEdge],
+        remaining_budget: Optional[float] = None,
+    ) -> List[Tuple[str, float, Dict[str, Any]]]:
+        if not candidates:
+            return []
+
+        # 1. Single-road VOI for each candidate
+        single_vois: Dict[str, float] = {
+            r.road_id: voi(belief, r.road_id, accuracy=self.accuracy)
+            for r in candidates
+        }
+
+        # 2. Check if lookahead-2 can be evaluated
+        can_pair = len(candidates) >= 2
+        if can_pair and remaining_budget is not None:
+            if self.budget_mode == "count":
+                if remaining_budget < 2.0:
+                    can_pair = False
+            else:
+                sorted_costs = sorted(r.observation_cost for r in candidates)
+                if sorted_costs[0] + sorted_costs[1] > remaining_budget:
+                    can_pair = False
+
+        if not can_pair:
+            # Fall back to single-road VOI
+            scored = []
+            for r in candidates:
+                s_voi = single_vois[r.road_id]
+                c = 1.0 if self.budget_mode == "count" else r.observation_cost
+                score = s_voi / max(1e-6, c)
+                details = {
+                    "mode": "fallback_single_voi",
+                    "voi": round(s_voi, 3),
+                    "cost": r.observation_cost,
+                    "score": round(score, 4),
+                    "is_first_in_pair": True,
+                }
+                scored.append((r.road_id, float(score), details))
+            scored.sort(key=lambda x: (x[1], -belief.edge_metadata[belief.road_id_to_idx[x[0]]].observation_cost, x[0]), reverse=True)
+            return scored
+
+        # 3. Evaluate all affordable pairs
+        pair_scores: Dict[Tuple[str, str], float] = {}
+        pair_joint_vois: Dict[Tuple[str, str], float] = {}
+        pair_first_roads: Dict[Tuple[str, str], str] = {}
+
+        n_cand = len(candidates)
+        for i in range(n_cand):
+            r_i = candidates[i]
+            cost_i = 1.0 if self.budget_mode == "count" else r_i.observation_cost
+            for j in range(i + 1, n_cand):
+                r_j = candidates[j]
+                cost_j = 1.0 if self.budget_mode == "count" else r_j.observation_cost
+                total_cost = cost_i + cost_j
+
+                if remaining_budget is not None:
+                    deduct_needed = 2.0 if self.budget_mode == "count" else (r_i.observation_cost + r_j.observation_cost)
+                    if deduct_needed > remaining_budget:
+                        continue
+
+                j_voi = joint_voi(belief, r_i.road_id, r_j.road_id, accuracy=self.accuracy)
+                p_score = j_voi / max(1e-6, total_cost)
+                pair_key = (r_i.road_id, r_j.road_id)
+                pair_scores[pair_key] = p_score
+                pair_joint_vois[pair_key] = j_voi
+
+                # Determine first road of this pair
+                s_score_i = single_vois[r_i.road_id] / max(1e-6, cost_i)
+                s_score_j = single_vois[r_j.road_id] / max(1e-6, cost_j)
+                if s_score_i > s_score_j:
+                    pair_first_roads[pair_key] = r_i.road_id
+                elif s_score_j > s_score_i:
+                    pair_first_roads[pair_key] = r_j.road_id
+                else:
+                    if cost_i < cost_j:
+                        pair_first_roads[pair_key] = r_i.road_id
+                    elif cost_j < cost_i:
+                        pair_first_roads[pair_key] = r_j.road_id
+                    else:
+                        pair_first_roads[pair_key] = min(r_i.road_id, r_j.road_id)
+
+        # 4. Score each candidate road e
+        candidate_scores: List[Tuple[str, float, Dict[str, Any]]] = []
+        for r in candidates:
+            rid = r.road_id
+            cost_r = 1.0 if self.budget_mode == "count" else r.observation_cost
+            best_pair = None
+            best_p_score = -1.0
+            best_j_voi = 0.0
+            best_partner = None
+
+            for (r1, r2), p_score in pair_scores.items():
+                if r1 == rid or r2 == rid:
+                    if p_score > best_p_score:
+                        best_p_score = p_score
+                        best_pair = (r1, r2)
+                        best_j_voi = pair_joint_vois[(r1, r2)]
+                        best_partner = r2 if r1 == rid else r1
+
+            if best_pair is not None:
+                is_first = (pair_first_roads[best_pair] == rid)
+                details = {
+                    "mode": "lookahead_2",
+                    "best_partner": best_partner,
+                    "joint_voi": round(best_j_voi, 3),
+                    "pair_score": round(best_p_score, 4),
+                    "single_voi": round(single_vois[rid], 3),
+                    "is_first_in_pair": is_first,
+                    "cost": r.observation_cost,
+                }
+                candidate_scores.append((rid, float(best_p_score), details))
+            else:
+                s_score = single_vois[rid] / max(1e-6, cost_r)
+                details = {
+                    "mode": "fallback_single_voi",
+                    "voi": round(single_vois[rid], 3),
+                    "cost": r.observation_cost,
+                    "score": round(s_score, 4),
+                    "is_first_in_pair": True,
+                }
+                candidate_scores.append((rid, float(s_score), details))
+
+        # Sort so that highest pair score is first, and if tied on pair score,
+        # the designated first road of that pair comes first
+        def sort_key(item: Tuple[str, float, Dict[str, Any]]):
+            rid, score, det = item
+            is_first = det.get("is_first_in_pair", False)
+            cost_val = det.get("cost", 1.0)
+            s_voi = det.get("single_voi", det.get("voi", 0.0))
+            return (
+                round(score, 6),
+                1 if is_first else 0,
+                round(s_voi, 6),
+                -cost_val,
+            )
+
+        candidate_scores.sort(key=lambda x: (sort_key(x), [-ord(c) for c in x[0]]), reverse=True)
+        return candidate_scores
 
 
 def explain(belief: BeliefState, road_id: str, accuracy: float = 1.0) -> str:

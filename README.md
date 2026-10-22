@@ -67,10 +67,18 @@ The terminal demo:
 4. **Scoring & Urgency:**
    - ORACLE score: $\text{VOI} \times \text{urgency} / \text{normalized\_cost}$, where $\text{urgency} = 0.5 + 0.5 \times \text{staleness}$ and $\text{normalized\_cost} = \text{cost} / \text{max\_cost}$.
 
-5. **Observation Sources:**
-   - Perfect (`accuracy = 1.0`), Field inspection (`accuracy = 0.95`), and Satellite (`accuracy = 0.85`).
-   - Observations are updated via exact Bayesian likelihood weighting on the Monte Carlo worlds.
+5. **Observation Sources & Sensor Noise:**
+   - **Perfect:** `accuracy = 1.0` (ideal ground truth observation).
+   - **Field Inspection:** `accuracy = 0.95` (rapid field verification teams).
+   - **Satellite Imagery:** Modeled with asymmetric operating characteristics reflecting remote sensing flood classification: True Positive Rate (TPR / sensitivity to passable road) = `0.88`, True Negative Rate (TNR / specificity to flood blockage) = `0.82` (mean accuracy `0.85`).
+   - Observations update world weights via exact Bayesian likelihood weighting: $w \propto w_0 \cdot P(\text{report} \mid \text{state})$.
 
-6. **Ground Truth Isolation (No Leakage):**
+6. **ORACLE Lookahead-2 (Joint VOI):**
+   - Evaluates pairs of candidate roads $(e, f)$ across all 4 joint report combinations using the same simulated worlds and Bayesian weights.
+   - Computes $\text{Joint-VOI}(e, f) = V_0 - \sum_{(y_e, y_f)} P(y_e, y_f) \min_r \mathbb{E}[\text{cost}_r \mid y_e, y_f]$.
+   - Proven non-negative and monotonic: $\text{Joint-VOI}(e, f) \ge \max(\text{VOI}(e), \text{VOI}(f))$.
+   - Recommends the first road of the top affordable pair, falling back to myopic VOI when only a single observation fits the remaining budget.
+
+7. **Ground Truth Isolation (No Leakage):**
    - Ground truth is private to the `Scenario` object (`_truth`) and is never accessible to `BeliefState`, routing, or ranking strategies.
    - Ground truth is only evaluated post-decision in `simulate.py` to calculate realized cost and regret.

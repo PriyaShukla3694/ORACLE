@@ -14,10 +14,12 @@ from oracle_logic import (
     BeliefState,
     FixedPriority,
     HighestUncertainty,
+    OracleLookahead2,
     OracleVOI,
     RandomStrategy,
     WeightedHeuristic,
     exact_worlds,
+    joint_voi,
     voi,
 )
 from routing import FAIL_PENALTY, best_route, compute_route_costs, enumerate_routes
@@ -387,5 +389,103 @@ def test_oracle_matches_or_beats_baselines_in_both_states() -> None:
         assert oracle_res["regret"] == 0.0
         # In both states, ORACLE regret <= all baseline regrets
         assert oracle_res["regret"] <= min(baseline_regrets)
+
+
+def test_joint_voi_monotonicity_over_single_voi() -> None:
+    """Property: Joint-VOI(e1, e2) >= max(VOI(e1), VOI(e2)) for both perfect and noisy sources."""
+    # Test on demo scenario
+    scen = demo_scenario(seed=42)
+    roads = get_roads_list(scen.graph)
+    T, A = enumerate_routes(scen.graph)
+    W = sample_worlds(scen.graph, n_worlds=1000, length_scale=2.0, rng=np.random.default_rng(42))
+    w = np.ones(1000) / 1000.0
+    belief = BeliefState(W, w, roads, scen.graph, T, A)
+
+    sources = [1.0, 0.85, (0.88, 0.82)]
+    pairs = [
+        ("ROAD_A", "ROAD_B"),
+        ("ROAD_DETOUR_1", "ROAD_DETOUR_2"),
+        ("ROAD_A", "ROAD_DECOY"),
+    ]
+
+    for acc in sources:
+        for r1, r2 in pairs:
+            v1 = voi(belief, r1, accuracy=acc)
+            v2 = voi(belief, r2, accuracy=acc)
+            v_joint = joint_voi(belief, r1, r2, accuracy=acc)
+
+            assert v_joint >= v1 - 1e-9, f"Joint VOI {v_joint} < VOI({r1}) {v1} under acc={acc}"
+            assert v_joint >= v2 - 1e-9, f"Joint VOI {v_joint} < VOI({r2}) {v2} under acc={acc}"
+
+
+def test_joint_voi_exact_enumeration_on_tiny_graph() -> None:
+    """Requirement: Joint VOI matches an exact enumeration on a tiny graph."""
+    # Minimal 2-path network
+    g = nx.Graph()
+    g.add_node("BASE", pos=(0.0, 0.0))
+    g.add_node("HOSPITAL", pos=(2.0, 0.0))
+    g.add_node("N1", pos=(1.0, 1.0))
+    g.add_node("ISOLATED", pos=(0.0, 2.0))
+
+    # Path 0: BASE -> N1 -> HOSPITAL (Route 0): travel time 20, p=0.60
+    g.add_edge("BASE", "N1", road_id="R0", travel_time=10.0, observation_cost=2.0, staleness=0.5, p_passable=0.60)
+    g.add_edge("N1", "HOSPITAL", road_id="R_FIXED", travel_time=10.0, observation_cost=1.0, staleness=0.1, p_passable=1.0)
+    # Path 1: BASE -> HOSPITAL direct (Route 1): travel time 40, p=0.95
+    g.add_edge("BASE", "HOSPITAL", road_id="R1", travel_time=40.0, observation_cost=2.0, staleness=0.2, p_passable=0.95)
+    # Dead-end edge
+    g.add_edge("BASE", "ISOLATED", road_id="R_DEAD", travel_time=5.0, observation_cost=1.0, staleness=0.9, p_passable=0.50)
+
+    roads = get_roads_list(g)
+    T, A = enumerate_routes(g)
+    p_vec = np.array([r.p_passable for r in roads])
+    W_exact, w_exact = exact_worlds(p_vec)
+    belief = BeliefState(W_exact, w_exact, roads, g, T, A)
+
+    # Theoretical exact calculations:
+    # V0 = 46.0
+    # Single VOI(R0) = 15.6
+    # Single VOI(R1) = 4.6
+    # Joint VOI(R0, R1):
+    #   (P, P) prob 0.57 -> min cost 20.0
+    #   (P, B) prob 0.03 -> min cost 20.0
+    #   (B, P) prob 0.38 -> min cost 40.0
+    #   (B, B) prob 0.02 -> min cost 140.0
+    # Exp cost = 0.57*20 + 0.03*20 + 0.38*40 + 0.02*140 = 12.0 + 15.2 + 2.8 = 30.0
+    # Joint VOI = 46.0 - 30.0 = 16.0
+    v_joint = joint_voi(belief, "R0", "R1", accuracy=1.0)
+    np.testing.assert_allclose(v_joint, 16.0, atol=1e-10)
+
+    # Joint VOI with a dead-end road (R_DEAD) must equal single VOI of R0
+    v_joint_dead = joint_voi(belief, "R0", "R_DEAD", accuracy=1.0)
+    v_single_r0 = voi(belief, "R0", accuracy=1.0)
+    np.testing.assert_allclose(v_joint_dead, v_single_r0, atol=1e-10)
+
+
+def test_oracle_lookahead_2_determinism_and_fallback() -> None:
+    """Requirement: Determinism and budget fallback of OracleLookahead2."""
+    scen = demo_scenario(seed=42)
+    roads = get_roads_list(scen.graph)
+    T, A = enumerate_routes(scen.graph)
+    W = sample_worlds(scen.graph, n_worlds=500, length_scale=2.0, rng=np.random.default_rng(42))
+    w = np.ones(500) / 500.0
+    belief = BeliefState(W, w, roads, scen.graph, T, A)
+
+    strat = OracleLookahead2(accuracy=1.0, budget_mode="count")
+
+    # Run 1 and Run 2 must be identically ordered with identical scores
+    rank1 = strat.rank(belief, roads, remaining_budget=2.0)
+    rank2 = strat.rank(belief, roads, remaining_budget=2.0)
+
+    assert [x[0] for x in rank1] == [x[0] for x in rank2]
+    for (_, s1, d1), (_, s2, d2) in zip(rank1, rank2):
+        assert abs(s1 - s2) < 1e-9
+        assert d1["joint_voi"] == d2["joint_voi"]
+
+    # When budget only allows 1 observation, it falls back to single VOI
+    rank_fb = strat.rank(belief, roads, remaining_budget=1.0)
+    assert rank_fb[0][2]["mode"] == "fallback_single_voi"
+    # In demo scenario, Road B has highest single VOI
+    assert rank_fb[0][0] == "ROAD_B"
+
 
 

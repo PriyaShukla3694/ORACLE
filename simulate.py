@@ -16,6 +16,7 @@ from oracle_logic import (
     BeliefState,
     FixedPriority,
     HighestUncertainty,
+    OracleLookahead2,
     OracleVOI,
     RandomStrategy,
     WeightedHeuristic,
@@ -86,7 +87,10 @@ def run_episode(
         if not candidates:
             break
 
-        ranked = strategy.rank(belief, candidates)
+        try:
+            ranked = strategy.rank(belief, candidates, remaining_budget=remaining_budget)
+        except TypeError:
+            ranked = strategy.rank(belief, candidates)
         # Select highest-ranked candidate within remaining budget
         chosen_candidate = None
         chosen_score = 0.0

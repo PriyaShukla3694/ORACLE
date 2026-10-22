@@ -1,111 +1,91 @@
 """Diagnosis script replaying specific outlier cases from quick_eval step-by-step.
 
-Investigates:
-1. Seed 1, length_scale 2.0, budget 3, source perfect
-2. Seed 2, length_scale 2.0, budget 3, source satellite
-3. Seed 0, length_scale 2.0, budget 5, source perfect
+Compares:
+- ORACLE-VOI (myopic single-step)
+- ORACLE-Lookahead-2 (2-step joint VOI lookahead)
+
+Cases:
+1. Seed 1, length_scale 2.0, k=3, source perfect
+2. Seed 2, length_scale 2.0, k=3 (and budget 3), source satellite
+3. Seed 0, length_scale 2.0, k=5, source perfect
 """
 
 from __future__ import annotations
 
+from typing import Any, Dict, List
+
 import numpy as np
 
-from oracle_logic import BeliefState, OracleVOI
+from oracle_logic import BeliefState, OracleLookahead2, OracleVOI
 from routing import FAIL_PENALTY, best_route, enumerate_routes, get_route_edges
 from scenario_data import SOURCES, get_roads_list, random_scenario, sample_worlds
 
 
-def replay_case(seed: int, length_scale: float, budget: float, source: str) -> None:
-    print("=" * 84)
-    print(f"CASE DIAGNOSIS: Seed={seed}, LengthScale={length_scale}, Budget={budget}, Source={source}")
-    print("=" * 84)
-
-    # 1. Instantiate scenario
+def replay_single_strategy(
+    seed: int,
+    length_scale: float,
+    budget: float,
+    budget_mode: str,
+    source: str,
+    strategy_cls: Any,
+    strategy_kwargs: Dict[str, Any],
+) -> Dict[str, Any]:
     scen = random_scenario(seed=seed, length_scale=length_scale)
     roads = get_roads_list(scen.graph)
     T, A = enumerate_routes(scen.graph)
     R = len(T)
 
-    print(f"Network has {len(scen.graph.nodes)} nodes, {len(roads)} roads, {R} candidate routes.")
-    print("\n--- GROUND TRUTH PASSABILITY ---")
-    for r in roads:
-        status = "OPEN" if scen._truth[r.road_id] else "BLOCKED"
-        print(f"  {r.road_id:<16}: Prior P={r.p_passable:.2f}, Cost={r.observation_cost:.1f}, True State={status}")
-
-    print("\n--- CANDIDATE ROUTES ---")
-    for r_idx in range(R):
-        r_edges = get_route_edges(A, roads, r_idx)
-        r_rids = [e.road_id for e in r_edges]
-        is_truly_blocked = any(not scen._truth[rid] for rid in r_rids)
-        real_cost = T[r_idx] + (FAIL_PENALTY if is_truly_blocked else 0.0)
-        blocked_rids = [rid for rid in r_rids if not scen._truth[rid]]
-        status_str = f"BLOCKED by {blocked_rids}" if is_truly_blocked else "ALL OPEN"
-        print(f"  Route #{r_idx}: Time={T[r_idx]:.1f}m | Realized={real_cost:.1f}m | Truth: {status_str} | Roads: {r_rids}")
-
-    # Initialize Monte Carlo belief
     rng = np.random.default_rng(seed)
     W = sample_worlds(scen.graph, n_worlds=3000, length_scale=length_scale, rng=rng)
     weights = np.ones(3000, dtype=float) / 3000.0
     belief = BeliefState(W, weights, roads, scen.graph, T, A)
 
-    r0_idx, v0 = best_route(belief.cost, belief.weights)
-    print(f"\n--- INITIAL BELIEF (Before observations) ---")
-    print(f"Prior optimal route: Route #{r0_idx} with Expected Cost = {v0:.2f} min")
-    route_exp_costs = belief.weights @ belief.cost
-    for r_idx in range(R):
-        print(f"  Route #{r_idx}: ExpCost = {route_exp_costs[r_idx]:.2f} min")
-
-    # Step-by-step observation execution
-    remaining_budget = float(budget)
-    step = 0
     accuracy = SOURCES.get(source, 1.0)
-    strategy = OracleVOI(accuracy=accuracy)
+    strat = strategy_cls(accuracy=accuracy, budget_mode=budget_mode, **strategy_kwargs)
+
+    remaining_budget = float(budget)
+    steps_log: List[Dict[str, Any]] = []
 
     while remaining_budget > 0:
         candidates = [r for r in roads if r.road_id not in belief.observed_roads]
         if not candidates:
             break
 
-        ranked = strategy.rank(belief, candidates)
-        # Select best affordable
+        ranked = strat.rank(belief, candidates, remaining_budget=remaining_budget)
         chosen = None
         for rid, score, details in ranked:
             edge_obj = belief.edge_metadata[belief.road_id_to_idx[rid]]
-            if edge_obj.observation_cost <= remaining_budget:
+            deduct = 1.0 if budget_mode == "count" else edge_obj.observation_cost
+            if deduct <= remaining_budget:
                 chosen = (edge_obj, score, details)
                 break
 
         if chosen is None:
-            print(f"\n[Observation Step {step+1}] No remaining candidates fit budget {remaining_budget:.1f}.")
             break
 
-        step += 1
         edge_obj, score, details = chosen
         rid = edge_obj.road_id
-        obs_cost = edge_obj.observation_cost
+        deduct = 1.0 if budget_mode == "count" else edge_obj.observation_cost
 
-        print(f"\n>>> STEP {step}: Remaining Budget = {remaining_budget:.1f}")
-        print("  Top 3 Candidates by Oracle-VOI Score:")
-        for r_rank, (c_rid, c_score, c_det) in enumerate(ranked[:3], 1):
-            print(f"    {r_rank}. {c_rid:<16} Score={c_score:.4f} | VOI={c_det.get('voi', 0):.3f} | Cost={c_det.get('cost', 0):.1f}")
-
-        # Observe
+        # Query scenario observation
         reported = scen.observe(rid, source=source)
-        remaining_budget -= obs_cost
+        remaining_budget -= deduct
 
         # Belief update
         belief.update(rid, reported, accuracy=accuracy)
         new_best_r, new_v0 = best_route(belief.cost, belief.weights)
-        new_exp_costs = belief.weights @ belief.cost
 
-        true_val = "OPEN" if scen._truth[rid] else "BLOCKED"
-        print(f"  Action: Observed {rid} (Cost={obs_cost:.1f})")
-        print(f"  Outcome: Reported='{reported.upper()}' (Ground Truth was '{true_val}')")
-        print(f"  Post-Observation Best Route: Route #{new_best_r} with ExpCost = {new_v0:.2f} min")
-        for r_idx in range(R):
-            print(f"    Route #{r_idx}: ExpCost = {new_exp_costs[r_idx]:.2f} min (Marginal P(passable)={belief.marginals()[belief.road_id_to_idx[rid]]:.3f})")
+        steps_log.append({
+            "road_id": rid,
+            "cost": edge_obj.observation_cost,
+            "score": score,
+            "details": details,
+            "reported": reported,
+            "true": scen._truth[rid],
+            "new_best_route": new_best_r,
+            "new_v0": new_v0,
+        })
 
-    # Final Decision
     final_r, final_exp = best_route(belief.cost, belief.weights)
     final_edges = get_route_edges(A, roads, final_r)
     final_rids = [e.road_id for e in final_edges]
@@ -125,30 +105,84 @@ def replay_case(seed: int, length_scale: float, budget: float, source: str) -> N
 
     regret = final_realized - omniscient_cost
 
-    print("\n--- FINAL EPISODE RESULT ---")
-    print(f"Chosen Route: Route #{final_r}")
-    print(f"  Travel Time: {T[final_r]:.1f} min")
-    print(f"  Roads along chosen route and their true states:")
-    for rid in final_rids:
-        observed_str = f"Observed={belief.observed_roads.get(rid, 'NO')}"
-        true_str = "OPEN" if scen._truth[rid] else "BLOCKED (DISASTER!)"
-        print(f"    {rid:<16}: True={true_str} | {observed_str}")
+    return {
+        "strategy_name": strat.name,
+        "steps_log": steps_log,
+        "final_route": final_r,
+        "final_route_roads": final_rids,
+        "is_final_blocked": is_final_blocked,
+        "realized_cost": final_realized,
+        "omniscient_cost": omniscient_cost,
+        "omniscient_route": omniscient_r,
+        "regret": regret,
+    }
 
-    print(f"Route Truly Blocked: {is_final_blocked}")
-    print(f"Realized Cost: {final_realized:.1f} min (Omniscient Cost: {omniscient_cost:.1f} min)")
-    print(f"Regret: {regret:.1f} min")
-    print()
+
+def replay_case(seed: int, length_scale: float, budget: float, budget_mode: str, source: str) -> None:
+    print("=" * 88)
+    print(f"CASE DIAGNOSIS: Seed={seed}, LengthScale={length_scale}, Budget={budget} ({budget_mode}), Source={source}")
+    print("=" * 88)
+
+    res_voi = replay_single_strategy(
+        seed=seed,
+        length_scale=length_scale,
+        budget=budget,
+        budget_mode=budget_mode,
+        source=source,
+        strategy_cls=OracleVOI,
+        strategy_kwargs={},
+    )
+
+    res_la2 = replay_single_strategy(
+        seed=seed,
+        length_scale=length_scale,
+        budget=budget,
+        budget_mode=budget_mode,
+        source=source,
+        strategy_cls=OracleLookahead2,
+        strategy_kwargs={},
+    )
+
+    for res in (res_voi, res_la2):
+        print(f"\n--- STRATEGY: {res['strategy_name']} ---")
+        for i, step in enumerate(res["steps_log"], 1):
+            det = step["details"]
+            mode = det.get("mode", "single_voi")
+            partner = det.get("best_partner", "N/A")
+            j_voi = det.get("joint_voi", det.get("voi", 0.0))
+            is_1st = det.get("is_first_in_pair", True)
+            print(f"  Step {i}: Observed {step['road_id']:<16} (Cost={step['cost']:.1f})")
+            print(f"    Mode: {mode} | Score={step['score']:.4f} | Partner={partner} | JointVOI={j_voi:.3f} | FirstInPair={is_1st}")
+            print(f"    Reported: {step['reported'].upper()} (Truth was {'OPEN' if step['true'] else 'BLOCKED'})")
+            print(f"    Post-Step Best Route: Route #{step['new_best_route']} (ExpCost={step['new_v0']:.2f} min)")
+
+        print(f"  Chosen Route: Route #{res['final_route']} -> Realized Cost: {res['realized_cost']:.1f}m (Omniscient: {res['omniscient_cost']:.1f}m)")
+        print(f"  Roads: {res['final_route_roads']}")
+        print(f"  Route Truly Blocked: {res['is_final_blocked']} | Regret: {res['regret']:.1f} min")
+
+    differs = (res_voi["steps_log"] != res_la2["steps_log"])
+    print(f"\n>>> COMPARISON: Did choices differ? {'YES' if differs else 'NO'}")
+    if differs:
+        voi_obs = [s["road_id"] for s in res_voi["steps_log"]]
+        la2_obs = [s["road_id"] for s in res_la2["steps_log"]]
+        print(f"    ORACLE-VOI observed:        {voi_obs} -> Regret={res_voi['regret']:.1f} min")
+        print(f"    ORACLE-Lookahead-2 observed: {la2_obs} -> Regret={res_la2['regret']:.1f} min")
+    else:
+        print(f"    Both strategies selected the identical observation sequence and realized regret {res_voi['regret']:.1f} min.")
 
 
 def main() -> None:
-    # 1. Seed 1, length_scale 2.0, budget 3, source perfect
-    replay_case(seed=1, length_scale=2.0, budget=3.0, source="perfect")
+    # 1. Seed 1, length_scale 2.0, k=3, source perfect
+    replay_case(seed=1, length_scale=2.0, budget=3.0, budget_mode="count", source="perfect")
+    replay_case(seed=1, length_scale=2.0, budget=3.0, budget_mode="cost", source="perfect")
 
-    # 2. Seed 2, length_scale 2.0, budget 3, source satellite
-    replay_case(seed=2, length_scale=2.0, budget=3.0, source="satellite")
+    # 2. Seed 2, length_scale 2.0, k=3 and budget 3, source satellite
+    replay_case(seed=2, length_scale=2.0, budget=3.0, budget_mode="count", source="satellite")
+    replay_case(seed=2, length_scale=2.0, budget=3.0, budget_mode="cost", source="satellite")
 
-    # 3. Seed 0, length_scale 2.0, budget 5, source perfect
-    replay_case(seed=0, length_scale=2.0, budget=5.0, source="perfect")
+    # 3. Seed 0, length_scale 2.0, k=5, source perfect
+    replay_case(seed=0, length_scale=2.0, budget=5.0, budget_mode="count", source="perfect")
+    replay_case(seed=0, length_scale=2.0, budget=5.0, budget_mode="cost", source="perfect")
 
 
 if __name__ == "__main__":
