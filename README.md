@@ -87,3 +87,29 @@ The terminal demo:
 8. **Ground Truth Isolation (No Leakage):**
    - Ground truth is private to the `Scenario` object (`_truth`) and is never accessible to `BeliefState`, routing, or ranking strategies.
    - Ground truth is only evaluated post-decision in `simulate.py` to calculate realized cost and regret.
+
+---
+
+## 5. Benchmark Results & Dashboard Specification (Tab 3 & Tab 4)
+
+### Strategy Designations
+- **Default Recommended Strategy:** `ORACLE-VOI` (single-step myopic Value of Information).
+- **ORACLE-Lookahead-2:** Labeled as *"Exploratory: advantage over single-step VOI not established in mean regret"*. While Lookahead-2 provides slight marginal reductions in catastrophic failure (21.6% vs 22.0%), its mean regret improvement over single-step VOI (-0.36 min) is not established beyond exploratory bounds.
+
+### Tab 3: Evaluation & Benchmark Results Specification
+- **Headline Primary Metrics:**
+  - **Catastrophic-Failure Rate** (chosen route blocked in reality, incurring the $+120$ min turnaround failure penalty).
+  - **Safe-Route Rate** (chosen route completely passable in reality).
+  - Evaluated on the **Solvable-Only** subset under **observation-count budget mode** ($k = 1, 2, 3, 5$), with 95% cluster bootstrap confidence intervals (clustered by scenario seed).
+  - Paired ORACLE-minus-baseline differences with cluster CIs and Holm-adjusted $p$-values loaded from `results/headline_paired.csv`.
+  - Mean regret and median regret displayed as secondary metrics.
+- **Reference & Diagnostic Tables:**
+  - **All-Scenarios Reference Table:** Comprehensive performance across all generated topologies including unnavigable networks.
+  - **Corridor-First vs ORACLE Zero-Regret Cross-Tabulation:** Explains why static Corridor-first achieves slightly higher exact-zero-regret episodes (39.7% vs 37.7% / 33.3%) by stubbornly holding the prior corridor (which is optimal in 22.0% of solvable cases), but suffers substantially worse catastrophic failures (30.5% vs 21.6% for Lookahead-2 and 22.0% for VOI).
+  - **Subgroup Breakdowns:** All environmental setting, sensor source, correlation length scale, and budget-level breakdowns are explicitly labeled as *"Exploratory Subgroups"*, with family-wise error rates controlled via Holm step-down adjustment.
+
+### Tab 4: Limitations & Decision Boundary Discussion
+1. **Synthetic Data Boundaries:** All results derive strictly from the synthetic copula scenario generator; no real-world empirical flood validation has been conducted to date.
+2. **Incomplete Information & Residual Failures:** Under constrained budgets, unobserved links can still cause catastrophic failure (~22.0% catastrophic failure rate in solvable scenarios at an average of ~2.75 observations).
+3. **Severe Disruption Limits:** In the **Harsh** setting (where only ~17% of scenarios possess any passable route), heuristic importance weighting on surviving paths achieves near parity with myopic VOI.
+4. **Scope:** Decision-support simulation only; no claims of real-time emergency dispatch readiness are made.
