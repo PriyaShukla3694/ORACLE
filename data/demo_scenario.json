@@ -40,7 +40,7 @@
       "travel_time": 8.0,
       "observation_cost": 3.0,
       "staleness": 0.8,
-      "p_passable": 0.65
+      "p_passable": 0.70
     },
     {
       "road_id": "ROAD_DETOUR_1",

@@ -174,10 +174,11 @@ class BaseStrategy:
 
 
 class FixedPriority(BaseStrategy):
-    """Static corridor clearance policy: prioritizes roads along the nominal shortest BASE->HOSPITAL corridor (Route #0).
+    """Corridor-first fixed priority static baseline.
 
-    Mimics standard emergency response procedure: clear the primary corridor outward from
-    BASE before exploring secondary bypasses. Uses no belief updating or VOI.
+    Ignores all beliefs. Computes the shortest BASE->HOSPITAL corridor by nominal travel_time
+    on the full network and ranks roads on that corridor first (in path order from the
+    hospital end), then ranks remaining roads by Euclidean distance to HOSPITAL.
     """
 
     name: str = "Fixed-Priority"
@@ -190,38 +191,79 @@ class FixedPriority(BaseStrategy):
         if not candidates:
             return []
 
-        base_pos = belief.graph.nodes["BASE"]["pos"]
+        hosp_pos = belief.graph.nodes["HOSPITAL"]["pos"]
+
+        # 1. Compute shortest path by travel_time on the network
+        corridor_road_order: Dict[str, int] = {}
+        if nx.has_path(belief.graph, "BASE", "HOSPITAL"):
+            path = nx.shortest_path(belief.graph, "BASE", "HOSPITAL", weight="travel_time")
+            # Extract road_ids along the path in reverse order (hospital end to base end)
+            rev_path_edges = []
+            for i in range(len(path) - 1, 0, -1):
+                u, v = path[i - 1], path[i]
+                edge_data = belief.graph[u][v]
+                rev_path_edges.append(edge_data["road_id"])
+
+            for idx, rid in enumerate(rev_path_edges):
+                corridor_road_order[rid] = idx  # 0 is closest to hospital along corridor
+
         scored = []
         for r in candidates:
-            e_idx = belief.road_id_to_idx[r.road_id]
-            is_on_primary = bool(belief.A[0, e_idx] > 0.5) if belief.A.shape[0] > 0 else False
-            is_on_any = bool(np.sum(belief.A[:, e_idx]) > 0.5)
-
-            # Midpoint distance to BASE
+            # Midpoint distance to HOSPITAL
             pos_u = belief.graph.nodes[r.u]["pos"]
             pos_v = belief.graph.nodes[r.v]["pos"]
             mid = ((pos_u[0] + pos_v[0]) / 2.0, (pos_u[1] + pos_v[1]) / 2.0)
-            dist_to_base = float(np.sqrt((mid[0] - base_pos[0]) ** 2 + (mid[1] - base_pos[1]) ** 2))
+            dist_to_hosp = float(np.sqrt((mid[0] - hosp_pos[0]) ** 2 + (mid[1] - hosp_pos[1]) ** 2))
 
-            # Primary corridor prioritized: score = 1000 - dist_to_base (clearing outward from base)
-            # Secondary routes: score = 100 - dist_to_base
-            # Off-route: score = -dist_to_base
-            if is_on_primary:
-                score = 1000.0 - dist_to_base
-                corridor_tag = "Primary Corridor (Route #0)"
-            elif is_on_any:
-                score = 100.0 - dist_to_base
-                corridor_tag = "Secondary/Bypass Corridor"
+            if r.road_id in corridor_road_order:
+                order_idx = corridor_road_order[r.road_id]
+                # Priority 1000 minus order index along corridor (0 closest to hospital)
+                score = 1000.0 - float(order_idx)
+                corridor_tag = f"Shortest Corridor (Hosp-order #{order_idx + 1})"
             else:
-                score = -dist_to_base
-                corridor_tag = "Off-Route / Isolated"
+                score = 100.0 - dist_to_hosp
+                corridor_tag = "Off-Corridor"
 
             details = {
                 "corridor": corridor_tag,
-                "dist_from_base": round(dist_to_base, 2),
+                "dist_to_hospital": round(dist_to_hosp, 2),
                 "cost": r.observation_cost,
             }
             scored.append((r.road_id, score, details))
+
+        scored.sort(key=lambda x: (x[1], x[0]), reverse=True)
+        return scored
+
+
+class HospitalAdjacentFixedPriority(BaseStrategy):
+    """Hospital-adjacent fixed priority: static heuristic ranking roads incident to HOSPITAL first, then by distance."""
+
+    name: str = "Hospital-Adjacent-Fixed-Priority"
+
+    def rank(
+        self,
+        belief: BeliefState,
+        candidates: List[RoadEdge],
+    ) -> List[Tuple[str, float, Dict[str, Any]]]:
+        if not candidates:
+            return []
+
+        hosp_pos = belief.graph.nodes["HOSPITAL"]["pos"]
+        scored = []
+        for r in candidates:
+            is_incident = (r.u == "HOSPITAL" or r.v == "HOSPITAL")
+            pos_u = belief.graph.nodes[r.u]["pos"]
+            pos_v = belief.graph.nodes[r.v]["pos"]
+            mid = ((pos_u[0] + pos_v[0]) / 2.0, (pos_u[1] + pos_v[1]) / 2.0)
+            dist = float(np.sqrt((mid[0] - hosp_pos[0]) ** 2 + (mid[1] - hosp_pos[1]) ** 2))
+
+            priority_score = (1000.0 - dist) if is_incident else (100.0 - dist)
+            details = {
+                "is_incident_hospital": is_incident,
+                "dist_to_hospital": round(dist, 2),
+                "cost": r.observation_cost,
+            }
+            scored.append((r.road_id, priority_score, details))
 
         scored.sort(key=lambda x: (x[1], x[0]), reverse=True)
         return scored
@@ -409,25 +451,18 @@ def explain(belief: BeliefState, road_id: str, accuracy: float = 1.0) -> str:
     passable_c = cond_costs.get("passable", v0)
     blocked_c = cond_costs.get("blocked", v0)
 
-    is_on_primary = bool(belief.A[0, e_idx] > 0.5) if belief.A.shape[0] > 0 else False
+    # Computed strictly from the route incidence matrix belief.A and current best route
     is_on_current_best = bool(best_idx >= 0 and belief.A[best_idx, e_idx] > 0.5)
-    is_on_any = bool(np.sum(belief.A[:, e_idx]) > 0.5)
+    is_on_other_candidate = bool(
+        any(belief.A[r, e_idx] > 0.5 for r in range(belief.A.shape[0]) if r != best_idx)
+    )
 
-    if is_on_primary:
-        if is_on_current_best:
-            route_status = "Critical link on the primary corridor (Route #0), which is currently selected as optimal"
-        else:
-            route_status = (
-                f"Critical link on the primary corridor (Route #0, travel time {belief.T[0]:.1f} min). "
-                f"Under current flood uncertainty, Route #0 is deemed too risky (expected cost {belief.weights @ belief.cost[:, 0]:.1f} min), "
-                f"forcing dispatchers to default to the safer detour (Route #{best_idx}, expected cost {v0:.1f} min)"
-            )
-    elif is_on_current_best:
-        route_status = f"Link on the currently preferred route (Route #{best_idx})"
-    elif is_on_any:
-        route_status = "Link on an alternate or bypass corridor"
+    if is_on_current_best:
+        route_status = f"On the CURRENT BEST route (Route #{best_idx}, expected journey cost: {v0:.1f} min)"
+    elif is_on_other_candidate:
+        route_status = "On another candidate route (alternate/bypass route)"
     else:
-        route_status = "Isolated link; not part of any viable route from BASE to HOSPITAL"
+        route_status = "On no candidate route"
 
     return (
         f"Recommendation Explanation for {road_meta.road_name} ({road_id}):\n"

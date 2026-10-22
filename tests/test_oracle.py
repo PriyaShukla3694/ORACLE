@@ -283,8 +283,8 @@ def test_budget_sanity_bounds() -> None:
     assert res_full["regret"] == 0.0
 
 
-def test_fixed_priority_corridor_focus() -> None:
-    """Fixed-Priority must prioritize roads on the primary corridor (Route #0)."""
+def test_fixed_priority_corridor_first_from_hospital_end() -> None:
+    """Fixed-Priority must prioritize roads on the shortest corridor ordered from the hospital end."""
     scen = demo_scenario(seed=42)
     roads = get_roads_list(scen.graph)
     T, A = enumerate_routes(scen.graph)
@@ -293,28 +293,67 @@ def test_fixed_priority_corridor_focus() -> None:
     belief = BeliefState(W, w, roads, scen.graph, T, A)
 
     ranked = FixedPriority().rank(belief, roads)
-    # Top 3 must all be on Route #0 (primary corridor)
     top_3_rids = [x[0] for x in ranked[:3]]
     primary_rids = {roads[e].road_id for e in range(len(roads)) if A[0, e] > 0.5}
     assert set(top_3_rids) == primary_rids
-    # And ordered from BASE outwards: ROAD_BASE_MAIN first
-    assert top_3_rids[0] == "ROAD_BASE_MAIN"
+
+    # Path from hospital end: ROAD_B (at hospital) -> ROAD_A -> ROAD_BASE_MAIN (at base)
+    assert top_3_rids[0] == "ROAD_B"
+    assert top_3_rids[1] == "ROAD_A"
+    assert top_3_rids[2] == "ROAD_BASE_MAIN"
 
 
-def test_uncertainty_gap_robustness() -> None:
-    """Highest-Uncertainty must separate decoy road from Road B by a robust margin (> 0.015)."""
+def test_explain_network_position_from_incidence_matrix() -> None:
+    """explain() Network Position must accurately report whether a road is on CURRENT BEST, another candidate, or no candidate route."""
+    from oracle_logic import explain
+
     scen = demo_scenario(seed=42)
     roads = get_roads_list(scen.graph)
     T, A = enumerate_routes(scen.graph)
-    W = sample_worlds(scen.graph, n_worlds=3000, length_scale=2.0, rng=np.random.default_rng(42))
-    w = np.ones(3000) / 3000.0
+    W = sample_worlds(scen.graph, n_worlds=500, length_scale=2.0, rng=np.random.default_rng(42))
+    w = np.ones(500) / 500.0
     belief = BeliefState(W, w, roads, scen.graph, T, A)
 
-    ranked = HighestUncertainty().rank(belief, roads)
-    rank_map = {rid: score for rid, score, _ in ranked}
-    assert ranked[0][0] == "ROAD_DECOY"
-    gap = rank_map["ROAD_DECOY"] - rank_map["ROAD_B"]
-    assert gap >= 0.015, f"Uncertainty gap {gap} was too narrow"
+    best_r_idx, _ = best_route(belief.cost, belief.weights)
+    # In demo_scenario before observation, best route is Route #1 (Detour)
+    assert best_r_idx == 1
+
+    # ROAD_DETOUR_1 is on Route #1 (CURRENT BEST route)
+    exp_best = explain(belief, "ROAD_DETOUR_1")
+    assert "On the CURRENT BEST route" in exp_best
+
+    # ROAD_B is on Route #0 (another candidate route, but not the current best route)
+    exp_bypass = explain(belief, "ROAD_B")
+    assert "On another candidate route" in exp_bypass
+
+    # ROAD_DECOY is on no route
+    exp_noroute = explain(belief, "ROAD_DECOY")
+    assert "On no candidate route" in exp_noroute
+
+
+def test_uncertainty_gap_and_oracle_robustness_seeds_0_to_20() -> None:
+    """Across seeds 0-20, Highest-Uncertainty top score exceeds Road B by >= 0.03, and ORACLE picks Road B."""
+    for seed in range(21):
+        scen = demo_scenario(seed=seed, length_scale=2.0)
+        roads = get_roads_list(scen.graph)
+        T, A = enumerate_routes(scen.graph)
+        rng = np.random.default_rng(seed)
+        W = sample_worlds(scen.graph, n_worlds=2500, length_scale=2.0, rng=rng)
+        w = np.ones(2500) / 2500.0
+        belief = BeliefState(W, w, roads, scen.graph, T, A)
+
+        # Highest-Uncertainty check
+        hu_ranked = HighestUncertainty().rank(belief, roads)
+        top_hu_rid, top_hu_score, _ = hu_ranked[0]
+        assert top_hu_rid == "ROAD_DECOY", f"Seed {seed}: Top HU road was {top_hu_rid}, expected ROAD_DECOY"
+
+        b_hu_score = next(score for rid, score, _ in hu_ranked if rid == "ROAD_B")
+        gap = top_hu_score - b_hu_score
+        assert gap >= 0.03, f"Seed {seed}: Uncertainty gap {gap:.4f} is less than 0.03"
+
+        # ORACLE check
+        ov_ranked = OracleVOI().rank(belief, roads)
+        assert ov_ranked[0][0] == "ROAD_B", f"Seed {seed}: ORACLE top road was {ov_ranked[0][0]}, expected ROAD_B"
 
 
 def test_oracle_matches_or_beats_baselines_in_both_states() -> None:
@@ -348,4 +387,5 @@ def test_oracle_matches_or_beats_baselines_in_both_states() -> None:
         assert oracle_res["regret"] == 0.0
         # In both states, ORACLE regret <= all baseline regrets
         assert oracle_res["regret"] <= min(baseline_regrets)
+
 
