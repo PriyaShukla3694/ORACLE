@@ -147,20 +147,12 @@ def load_csv_data(filepath: str) -> Optional[pd.DataFrame]:
 # ==============================================================================
 
 def get_color_for_p(p: float) -> str:
-    """Map passability probability p in [0, 1] to continuous RGB hex (Red -> Amber -> Green)."""
+    """Map passability probability p in [0, 1] directly from Red (0.0) to Green (1.0) without amber."""
     p = max(0.0, min(1.0, float(p)))
-    if p < 0.5:
-        # Red (239, 68, 68) to Amber (245, 158, 11)
-        ratio = p / 0.5
-        r = int(239 + (245 - 239) * ratio)
-        g = int(68 + (158 - 68) * ratio)
-        b = int(68 + (11 - 68) * ratio)
-    else:
-        # Amber (245, 158, 11) to Green (16, 185, 129)
-        ratio = (p - 0.5) / 0.5
-        r = int(245 + (16 - 245) * ratio)
-        g = int(158 + (185 - 158) * ratio)
-        b = int(11 + (129 - 11) * ratio)
+    # Direct linear RGB interpolation between Red (239, 68, 68) and Green (16, 185, 129)
+    r = int(239 + (16 - 239) * p)
+    g = int(68 + (185 - 68) * p)
+    b = int(68 + (129 - 68) * p)
     return f"rgb({r},{g},{b})"
 
 
@@ -211,16 +203,44 @@ def plot_network(
             )
 
         if is_recommended:
-            # Highlight recommended road in Amber glow
+            # Highlight recommended road with a thick white-and-cyan outline
             fig.add_trace(
                 go.Scatter(
                     x=[pos_u[0], pos_v[0]],
                     y=[pos_u[1], pos_v[1]],
                     mode="lines",
-                    line=dict(color="#F2B84B", width=6, dash="dash"),
+                    line=dict(color="#FFFFFF", width=12),
                     hoverinfo="skip",
                     showlegend=False,
                 )
+            )
+            fig.add_trace(
+                go.Scatter(
+                    x=[pos_u[0], pos_v[0]],
+                    y=[pos_u[1], pos_v[1]],
+                    mode="lines",
+                    line=dict(color="#35D6EA", width=7),
+                    hoverinfo="skip",
+                    showlegend=False,
+                )
+            )
+            # Add prominent recommended road label badge
+            fig.add_annotation(
+                x=mid_x,
+                y=mid_y,
+                text=f"★ RECOMMENDED ({r.road_id})",
+                showarrow=True,
+                arrowhead=2,
+                arrowsize=1,
+                arrowwidth=2,
+                arrowcolor="#FFFFFF",
+                ax=0,
+                ay=-32,
+                font=dict(color="#FFFFFF", size=10, family="sans-serif"),
+                bgcolor="rgba(8, 17, 31, 0.92)",
+                bordercolor="#35D6EA",
+                borderwidth=2,
+                borderpad=4,
             )
 
         hover_text = (
@@ -269,8 +289,8 @@ def plot_network(
                 )
             )
 
-    # 2. Draw Nodes
-    node_x, node_y, node_text, node_color, node_size, node_symbol = [], [], [], [], [], []
+    # 2. Draw Nodes with offset labels and semi-transparent backgrounds to prevent edge overlap
+    node_x, node_y, node_color, node_size, node_symbol = [], [], [], [], []
 
     for n, data in graph.nodes(data=True):
         pos = data["pos"]
@@ -280,33 +300,46 @@ def plot_network(
             node_color.append("#2BBFA8")
             node_size.append(20)
             node_symbol.append("diamond")
-            node_text.append("<b>BASE (Depot)</b>")
+            node_label = "<b>BASE (Depot)</b>"
+            y_shift = -24
         elif n == "HOSPITAL":
             node_color.append("#35D6EA")
             node_size.append(22)
             node_symbol.append("cross")
-            node_text.append("<b>HOSPITAL</b>")
+            node_label = "<b>HOSPITAL</b>"
+            y_shift = 24
         else:
             node_color.append("#94A3B8")
             node_size.append(14)
             node_symbol.append("circle")
-            node_text.append(f"Node {n}")
+            node_label = f"Node {n}"
+            y_shift = -20
+
+        fig.add_annotation(
+            x=pos[0],
+            y=pos[1],
+            text=node_label,
+            showarrow=False,
+            yshift=y_shift,
+            font=dict(color="#F8FAFC", size=10, family="sans-serif"),
+            bgcolor="rgba(8, 17, 31, 0.85)",
+            bordercolor="rgba(148, 163, 184, 0.4)",
+            borderwidth=1,
+            borderpad=3,
+        )
 
     fig.add_trace(
         go.Scatter(
             x=node_x,
             y=node_y,
-            mode="markers+text",
+            mode="markers",
             marker=dict(
                 size=node_size,
                 color=node_color,
                 symbol=node_symbol,
                 line=dict(width=2, color="#08111F"),
             ),
-            text=node_text,
-            textposition="bottom center",
-            textfont=dict(color="#F8FAFC", size=11),
-            hoverinfo="text",
+            hoverinfo="skip",
             showlegend=False,
         )
     )
@@ -314,7 +347,7 @@ def plot_network(
     # Invisible traces for legend
     fig.add_trace(go.Scatter(x=[None], y=[None], mode="lines", line=dict(color="#35D6EA", width=6), name="Current Best Route"))
     if recommended_road_id:
-        fig.add_trace(go.Scatter(x=[None], y=[None], mode="lines", line=dict(color="#F2B84B", width=4, dash="dash"), name="Recommended Observation"))
+        fig.add_trace(go.Scatter(x=[None], y=[None], mode="lines", line=dict(color="#FFFFFF", width=4), name="Recommended Observation"))
     fig.add_trace(go.Scatter(x=[None], y=[None], mode="markers", marker=dict(color="#10B981", size=10), name="High P(Passable)"))
     fig.add_trace(go.Scatter(x=[None], y=[None], mode="markers", marker=dict(color="#EF4444", size=10), name="Low P(Passable)"))
 
@@ -393,7 +426,8 @@ with st.sidebar:
     n_nodes_val = 8
 
     if scen_type == "Illustrative Demo Scenario":
-        st.info("6-node illustrative network with a fast primary route and safer detour.")
+        n_demo_roads = len(get_roads_list(demo_scenario().graph))
+        st.info(f"{n_demo_roads} roads, a fast primary corridor and a safer detour")
         demo_truth_choice = st.selectbox(
             "Force Hidden Truth for Demo:",
             options=[
@@ -442,9 +476,9 @@ with st.sidebar:
     # Budget
     budget_mode = st.radio("Budget Mode", options=["count", "cost"], index=0)
     if budget_mode == "count":
-        budget_limit = st.selectbox("Max Observations (k)", options=[1.0, 2.0, 3.0, 5.0, 7.0], index=2)
+        budget_limit = st.selectbox("Max Observations (k)", options=list(range(1, 11)), index=2)
     else:
-        budget_limit = st.slider("Total Cost Budget", 2.0, 20.0, 6.0, 1.0)
+        budget_limit = st.slider("Total Cost Budget", 2.0, 20.0, 6.0, 0.5)
 
     st.markdown("---")
     if st.button("🔄 Reset Scenario & Belief", use_container_width=True):
@@ -623,8 +657,10 @@ with tab1:
         if not st.session_state.finalized and top_recommendation_id:
             # Show Recommendation Explanation Card
             explanation_text = explain(belief, top_recommendation_id, accuracy=sensor_acc)
-            top_rec_edge = belief.edge_metadata[belief.road_id_to_idx[top_recommendation_id]]
+            top_rec_e_idx = belief.road_id_to_idx[top_recommendation_id]
+            top_rec_edge = belief.edge_metadata[top_rec_e_idx]
             top_rec_score = ranked_candidates[0][1]
+            p_rec_val = float(belief.marginals()[top_rec_e_idx])
 
             st.markdown(
                 f"""<div class="rec-card">
@@ -635,7 +671,7 @@ with tab1:
                         {top_rec_edge.road_name} ({top_recommendation_id})
                     </div>
                     <div style="font-size:0.88rem; color:#CBD5E1; line-height:1.5;">
-                        Prior P(Passable): <b>{top_rec_edge.p_passable*100:.1f}%</b> | Cost: <b>{top_rec_edge.observation_cost:.1f}</b> | Priority Score: <b>{top_rec_score:.3f}</b>
+                        P(Passable): <b>{p_rec_val*100:.1f}%</b> | Cost: <b>{top_rec_edge.observation_cost:.1f}</b> | Priority Score: <b>{top_rec_score:.3f}</b>
                     </div>
                 </div>""",
                 unsafe_allow_html=True,
@@ -700,7 +736,7 @@ with tab1:
 
         # Finalize Decision Button
         if not st.session_state.finalized:
-            if st.button("🏁 Finalize Route Decision & Commit Dispatch", type="secondary", use_container_width=True):
+            if st.button("🏁 Finalize decision (simulation)", type="secondary", use_container_width=True):
                 st.session_state.finalized = True
 
                 # Evaluate final outcome against private ground truth
@@ -768,6 +804,8 @@ with tab1:
 
     candidate_table_rows = []
     marginals = belief.marginals()
+    primary_route_idx = int(np.argmin(belief.T)) if len(belief.T) > 0 else -1
+
     for r in roads:
         e_idx = belief.road_id_to_idx[r.road_id]
         p_val = float(marginals[e_idx])
@@ -785,7 +823,14 @@ with tab1:
                 voi_val = f"{c_det.get('voi', c_det.get('joint_voi', 0.0)):.2f}"
                 break
 
-        on_best = "⭐ Current Best" if r.road_id in best_rids else ("Bypass / Alt" if np.sum(belief.A[:, e_idx]) > 0 else "None (Spur)")
+        if r.road_id in best_rids:
+            on_best = "Current best route"
+        elif primary_route_idx >= 0 and belief.A[primary_route_idx, e_idx] > 0.5:
+            on_best = "Other candidate route (primary corridor)"
+        elif np.any(belief.A[:, e_idx] > 0.5):
+            on_best = "Other candidate route (alternate)"
+        else:
+            on_best = "On no route (dead end)"
 
         candidate_table_rows.append({
             "Road ID": r.road_id,

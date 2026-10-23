@@ -76,9 +76,13 @@ def sample_worlds(
     p_vec = np.array([r.p_passable for r in roads], dtype=float)
 
     if length_scale <= 1e-6:
-        # Independent sampling
-        uniform_samples = rng.uniform(0.0, 1.0, size=(n_worlds, E))
-        return uniform_samples <= p_vec[np.newaxis, :]
+        # Stratified sampling of uniforms for independent case
+        W = np.zeros((n_worlds, E), dtype=bool)
+        for i in range(E):
+            u = (np.arange(n_worlds) + rng.uniform(0.0, 1.0, size=n_worlds)) / float(n_worlds)
+            rng.shuffle(u)
+            W[:, i] = u <= p_vec[i]
+        return W
 
     # Compute midpoints for all edges
     midpoints = np.zeros((E, 2), dtype=float)
@@ -111,9 +115,13 @@ def sample_worlds(
     z_indep = rng.standard_normal(size=(n_worlds, E))
     z = z_indep @ L.T
 
-    # Gaussian copula: Phi(z_i) <= p_i has marginal probability p_i
-    u_vals = ndtr(z)
-    return u_vals <= p_vec[np.newaxis, :]
+    # Stratified quantile thresholding on Gaussian copula marginals:
+    # Preserves the rank correlation matrix while ensuring empirical marginals match priors within 1/S
+    W = np.zeros((n_worlds, E), dtype=bool)
+    for i in range(E):
+        t_i = np.quantile(z[:, i], p_vec[i])
+        W[:, i] = z[:, i] <= t_i
+    return W
 
 
 class Scenario:

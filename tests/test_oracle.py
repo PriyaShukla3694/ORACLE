@@ -488,4 +488,18 @@ def test_oracle_lookahead_2_determinism_and_fallback() -> None:
     assert rank_fb[0][0] == "ROAD_B"
 
 
+def test_demo_scenario_sampled_marginals_within_tolerance() -> None:
+    """Requirement: Sampled marginals match priors within 0.01 at S=2000 for demo scenario."""
+    scen = demo_scenario(seed=42, length_scale=2.0)
+    roads = get_roads_list(scen.graph)
+    priors = np.array([r.p_passable for r in roads], dtype=float)
+
+    for seed in (0, 42, 101, 777):
+        rng = np.random.default_rng(seed)
+        W = sample_worlds(scen.graph, n_worlds=2000, length_scale=2.0, rng=rng)
+        empirical_marginals = np.mean(W, axis=0)
+        max_error = float(np.max(np.abs(empirical_marginals - priors)))
+        assert max_error < 0.01, f"Seed {seed}: max error {max_error} exceeded 0.01"
+
+
 

@@ -722,22 +722,24 @@ def explain(belief: BeliefState, road_id: str, accuracy: float = 1.0) -> str:
     blocked_c = cond_costs.get("blocked", v0)
 
     # Computed strictly from the route incidence matrix belief.A and current best route
+    primary_route_idx = int(np.argmin(belief.T)) if len(belief.T) > 0 else -1
     is_on_current_best = bool(best_idx >= 0 and belief.A[best_idx, e_idx] > 0.5)
-    is_on_other_candidate = bool(
-        any(belief.A[r, e_idx] > 0.5 for r in range(belief.A.shape[0]) if r != best_idx)
-    )
+    is_on_primary = bool(primary_route_idx >= 0 and belief.A[primary_route_idx, e_idx] > 0.5)
+    is_on_any_candidate = bool(np.any(belief.A[:, e_idx] > 0.5))
 
     if is_on_current_best:
-        route_status = f"On the CURRENT BEST route (Route #{best_idx}, expected journey cost: {v0:.1f} min)"
-    elif is_on_other_candidate:
-        route_status = "On another candidate route (alternate/bypass route)"
+        route_status = "Current best route (On the CURRENT BEST route)"
+    elif is_on_primary:
+        route_status = "Other candidate route (primary corridor) [On another candidate route]"
+    elif is_on_any_candidate:
+        route_status = "Other candidate route (alternate) [On another candidate route]"
     else:
-        route_status = "On no candidate route"
+        route_status = "On no route (dead end) [On no candidate route]"
 
     return (
         f"Recommendation Explanation for {road_meta.road_name} ({road_id}):\n"
-        f"  - Prior P(Passable): {p_pass*100:.1f}%, Staleness: {road_meta.staleness:.2f}, Observation Cost: {road_meta.observation_cost:.1f}\n"
-        f"  - Network Position: {route_status}.\n"
+        f"  - P(Passable): {p_pass*100:.1f}%, Staleness: {road_meta.staleness:.2f}, Observation Cost: {road_meta.observation_cost:.1f}\n"
+        f"  - Route Incidence: {route_status}.\n"
         f"  - Current baseline expected journey cost: {v0:.1f} min.\n"
         f"  - If reported PASSABLE: optimal route is Route #{cond_best_routes.get('passable', 0)} (expected cost: {passable_c:.1f} min).\n"
         f"  - If reported BLOCKED:  optimal route is Route #{cond_best_routes.get('blocked', 0)} (expected cost: {blocked_c:.1f} min).\n"
