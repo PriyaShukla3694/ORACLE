@@ -1,5 +1,7 @@
-networkx>=3.0
-numpy>=1.24.0
-pandas>=2.0.0
-pytest>=7.0.0
-scipy>=1.10.0
+networkx==3.7
+numpy==2.5.4
+pandas==3.0.6
+plotly==7.1.0
+pytest==9.1.1
+scipy==1.18.1
+streamlit==1.66.1
