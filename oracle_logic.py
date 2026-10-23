@@ -372,38 +372,6 @@ class CorridorClearanceBaseFirst(BaseStrategy):
 FixedPriority = CorridorFirstHospitalEnd
 
 
-class HospitalAdjacentFixedPriority(BaseStrategy):
-    """Hospital-adjacent fixed priority: static heuristic ranking roads incident to HOSPITAL first, then by distance."""
-
-    name: str = "Hospital-Adjacent-Fixed-Priority"
-
-    def rank(
-        self,
-        belief: BeliefState,
-        candidates: List[RoadEdge],
-    ) -> List[Tuple[str, float, Dict[str, Any]]]:
-        if not candidates:
-            return []
-
-        hosp_pos = belief.graph.nodes["HOSPITAL"]["pos"]
-        scored = []
-        for r in candidates:
-            is_incident = (r.u == "HOSPITAL" or r.v == "HOSPITAL")
-            pos_u = belief.graph.nodes[r.u]["pos"]
-            pos_v = belief.graph.nodes[r.v]["pos"]
-            mid = ((pos_u[0] + pos_v[0]) / 2.0, (pos_u[1] + pos_v[1]) / 2.0)
-            dist = float(np.sqrt((mid[0] - hosp_pos[0]) ** 2 + (mid[1] - hosp_pos[1]) ** 2))
-
-            priority_score = (1000.0 - dist) if is_incident else (100.0 - dist)
-            details = {
-                "is_incident_hospital": is_incident,
-                "dist_to_hospital": round(dist, 2),
-                "cost": r.observation_cost,
-            }
-            scored.append((r.road_id, priority_score, details))
-
-        scored.sort(key=lambda x: (x[1], x[0]), reverse=True)
-        return scored
 
 
 class HighestUncertainty(BaseStrategy):
@@ -702,21 +670,16 @@ class OracleLookahead2(BaseStrategy):
                 }
                 candidate_scores.append((rid, float(s_score), details))
 
-        # Sort so that highest pair score is first, and if tied on pair score,
-        # the designated first road of that pair comes first
-        def sort_key(item: Tuple[str, float, Dict[str, Any]]):
-            rid, score, det = item
-            is_first = det.get("is_first_in_pair", False)
-            cost_val = det.get("cost", 1.0)
-            s_voi = det.get("single_voi", det.get("voi", 0.0))
-            return (
-                round(score, 6),
-                1 if is_first else 0,
-                round(s_voi, 6),
-                -cost_val,
-            )
-
-        candidate_scores.sort(key=lambda x: (sort_key(x), [-ord(c) for c in x[0]]), reverse=True)
+        candidate_scores.sort(
+            key=lambda x: (
+                round(x[1], 6),
+                1 if x[2].get("is_first_in_pair", False) else 0,
+                round(x[2].get("single_voi", x[2].get("voi", 0.0)), 6),
+                -x[2].get("cost", 1.0),
+                [-ord(c) for c in x[0]],
+            ),
+            reverse=True,
+        )
         return candidate_scores
 
 
