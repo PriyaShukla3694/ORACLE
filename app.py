@@ -525,6 +525,8 @@ rec_t1 = time.perf_counter()
 rec_latency_ms = (rec_t1 - rec_t0) * 1000.0
 
 current_best_route_idx, current_v0 = best_route(belief.cost, belief.weights)
+best_route_edges = get_route_edges(belief.A, roads, current_best_route_idx) if current_best_route_idx >= 0 else []
+best_rids = {e.road_id for e in best_route_edges}
 top_recommendation_id = ranked_candidates[0][0] if ranked_candidates else None
 
 
